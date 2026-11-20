@@ -9,17 +9,19 @@ Humanity is everything Spring 2.0 was meant to be, plus:
 - **Signing for many types** — K1, R1, WebAuthn, plus Wire **EM** (EIP-191) and **ED** (ed25519). Link an external key with `ra.authex` (`linksig`) and unlock a credited deposit with `ra.claim` (`claimsig`).
 - **A human-first resource model** — Tonomy-style app registry and `loginwithapp` (per-app `user@app` keys). Contracts pay user-row RAM with `payer=get_self()`. Users pay CPU/NET, or rent via `ra.resources` / powerup. Block producers produce blocks.
 - **The RAM market from [XPR Network](https://github.com/ProtonProtocol)** — fixed 0.0020 RA/byte pricing, age-based purchase caps, system Bancor path (`buyramsys`), and a prefunded `ra.resources` stake pool. REX is disabled.
+- **Fractal elections and permission epochs** — small-group elections rotate a board onto named permissions; native epoch decay then fades signer weights until the old board cannot act. See [Elections and permission epochs](#elections-and-permission-epochs).
 - **Dangling Spring features** — this Spring 2.0 base already includes strong-QC mid-production apply (#1887), paginated `get_accounts_by_authorizers` (#1894), the chaindb slab allocator (#1070 / CHAINB02), and the `fc::xxh3` wrapper (#1868).
 
 1. [Branches](#branches)
 2. [System Token](#system-token)
 3. [Core Contracts](#core-contracts)
-4. [Supported Operating Systems](#supported-operating-systems)
-5. [Binary Installation](#binary-installation)
-6. [Build and Install from Source](#build-and-install-from-source)
-7. [Bash Autocomplete](#bash-autocomplete)
-8. [Roundtables](#roundtables)
-9. [Contributing](./CONTRIBUTING.md)
+4. [Elections and permission epochs](#elections-and-permission-epochs)
+5. [Supported Operating Systems](#supported-operating-systems)
+6. [Binary Installation](#binary-installation)
+7. [Build and Install from Source](#build-and-install-from-source)
+8. [Bash Autocomplete](#bash-autocomplete)
+9. [Roundtables](#roundtables)
+10. [Contributing](./CONTRIBUTING.md)
 
 ## Branches
 The `main` branch is the development branch; do not use it for production. Refer to the [release page](https://github.com/dougbutner/Humanity/releases) for current information on releases, pre-releases, and obsolete releases, as well as the corresponding tags for those releases.
@@ -44,6 +46,7 @@ All core contracts ship in this repository under [`contracts/`](./contracts), re
 | `ra.claim` | Relayer `credit`, Humanity-key `claim`, or `claimsig` with a linked EM/ED key ([details](./contracts/ra.claim/FUTURE.md)) |
 | `ra.org` | Org backpay: monthly role salaries in bucks, self/manager/peer review, trickle payout |
 | `flex.token` | Pure Liquid token (`contracts/ra.pure/flex.token.cpp`). Protocol vaults: `openpool` / `seedpool` / `collectpool` against an Alcor v2 swap. Permissions: [PERMISSIONS.md](./contracts/ra.pure/PERMISSIONS.md). |
+| `fractal.perm` | Helpers that sort authorities and send `updateauth` / `setepoch` to `ra` for election boards |
 
 After `ra.boot` is on `ra`, activate these Spring 2.0 features before deploying `ra.system` (these digests are Spring's, not Leap 4's):
 
@@ -54,8 +57,46 @@ After `ra.boot` is on `ra`, activate these Spring 2.0 features before deploying 
 | `WEBAUTHN_KEY` | `927fdf78c51e77a899f2db938249fb1f8bb38f4e43d9c1f75b190492080cbc34` |
 | `EM_ED_KEYS` | `dfc2e8e511691cb1e4c3e0792c48e2e882f74117e08b68b48f987903416bdd86` |
 | `ED25519_VERIFY` | `53b0e00df459b36a6aa1b9a7ea1f8a69dfe8d45ea6ca1c2d3c8b28adbd8742a2` |
+| `PERMISSION_EPOCH_DECAY` | `f9cfb84d96e355a2fcb684daac13628ff68c94a474b99160baa0fd6f3a452682` |
 
-`RAM_RESTRICTIONS` is what makes `payer=get_self()` safe. `EM_ED_KEYS` raises supported key types to 5 so EM/ED work in authorities and in `recover_key`. `ED25519_VERIFY` whitelists `ed25519_verify`, which checks a standard 64-byte Ed25519 signature over arbitrary message bytes. `recover_key` still checks ED signatures only over the lowercase hex of a 32-byte digest. Do **not** activate `FORWARD_SETCODE` if `ra` should keep intercepting `setcode`.
+`RAM_RESTRICTIONS` is what makes `payer=get_self()` safe. `EM_ED_KEYS` raises supported key types to 5 so EM/ED work in authorities and in `recover_key`. `ED25519_VERIFY` whitelists `ed25519_verify`, which checks a standard 64-byte Ed25519 signature over arbitrary message bytes. `recover_key` still checks ED signatures only over the lowercase hex of a 32-byte digest. `PERMISSION_EPOCH_DECAY` turns on native weight fading for elected permissions (see below). Do **not** activate `FORWARD_SETCODE` if `ra` should keep intercepting `setcode`.
+
+## Elections and permission epochs
+
+Antelope permissions do not auto-expire. Named authorities stay in RAM until someone calls `updateauth` or `deleteauth`. Humanity fixes that in the native auth path: **permission epochs** fade every signer weight on a schedule, while fractal **elections** rotate who sits on the board.
+
+### Fractal elections
+
+Recurve (see [WHITEPAPER.md](./WHITEPAPER.md)) elects in small face-to-face groups. The reference election sources live under [`external/Eden/contracts/eden`](./external/Eden) (trimmed from [gofractally/Eden](https://github.com/gofractally/Eden); pin in `UPSTREAM_SHA`). Groups are size 4–6; one winner advances per group until a final board remains.
+
+When an election finishes, `set_board_permission` writes two child permissions on the community account (via `ra::updateauth`, not `eosio`):
+
+| Permission | Threshold | Meaning |
+|---|---|---|
+| `board.major` | `n * 2 / 3 + 1` | Majority of the board (each member weight 1) |
+| `board.minor` | `n + 1 - majority` | Minority complementary threshold |
+
+The next election’s `updateauth` replaces the signer list in the same transaction, so the outgoing board cannot sign the new term (zero overlap). Helpers that sort accounts and push `updateauth` / `setepoch` live in [`contracts/fractal.perm`](./contracts/fractal.perm).
+
+### Permission epochs
+
+With `PERMISSION_EPOCH_DECAY` active, each permission may carry an `auth_epoch` (`period_sec`, `step`, `start_sec`). Authorization checks use **effective** weights; the stored threshold never moves.
+
+```text
+epochs    = (period_sec == 0 || now <= start_sec) ? 0 : (now - start_sec) / period_sec
+effective = weight > epochs * step ? weight - epochs * step : 0
+```
+
+One and a half periods counts as **one** epoch (integer floor). A factor at weight 0 contributes nothing. The permission is dead when every weight is 0, or when the sum of effective weights is below the threshold—no subset of parties can satisfy it.
+
+| Action | Who | Role |
+|---|---|---|
+| `setepoch` | Same auth as `updateauth` | Attach or clear epoch config on a permission (`period_sec = 0` turns decay off) |
+| `sweepdecay` | Privileged `ra` (from `onblock`) | Unlink and delete child permissions that are already unreachable; `owner` / `active` are left in place and simply fail checks |
+
+Example locked by tests: weights `{3,2,1}`, threshold `4`, `step = 1`, `period_sec = 3600`. After 5400s (one epoch) effective weights are `{2,1,0}`, sum `3 < 4`, so every signer fails while the threshold stays `4`. After three epochs every weight is `0`.
+
+Eden’s board setup calls `setepoch` on `board.major` and `board.minor` with `step = 1` and a period of “time until the next election” (fallback seven days), so a board that is never replaced fades out of power on schedule. Code permission on this chain is `ra.code`, not `eosio.code`.
 
 ## Local launch
 
