@@ -1,4 +1,5 @@
 #pragma once
+#include <eosio/chain/auth_epoch.hpp>
 #include <eosio/chain/authority.hpp>
 #include <eosio/chain/database_utils.hpp>
 
@@ -32,7 +33,9 @@ namespace eosio { namespace chain {
       permission_name                   name; ///< human-readable name for the permission (should not be changed within a chainbase modifier lambda)
       time_point                        last_updated; ///< the last time this authority was updated
       shared_authority                  auth; ///< authority required to execute this permission
+      auth_epoch                        epoch; ///< epoch decay; period_sec == 0 means off
 
+      uint32_t epoch_period_sec() const { return epoch.period_sec; }
 
       /**
        * @brief Checks if this permission is equivalent or greater than other
@@ -77,12 +80,14 @@ namespace eosio { namespace chain {
       time_point        last_updated; ///< the last time this authority was updated
       time_point        last_used; ///< when this permission was last used
       authority         auth; ///< authority required to execute this permission
+      auth_epoch        epoch; ///< epoch decay; default-constructed means off
    };
 
 
    struct by_parent;
    struct by_owner;
    struct by_name;
+   struct by_epoch;
    using permission_index = chainbase::shared_multi_index_container<
       permission_object,
       indexed_by<
@@ -104,6 +109,12 @@ namespace eosio { namespace chain {
                member<permission_object, permission_name, &permission_object::name>,
                member<permission_object, permission_object::id_type, &permission_object::id>
             >
+         >,
+         ordered_unique<tag<by_epoch>,
+            composite_key<permission_object,
+               const_mem_fun<permission_object, uint32_t, &permission_object::epoch_period_sec>,
+               member<permission_object, permission_object::id_type, &permission_object::id>
+            >
          >
       >
    >;
@@ -111,8 +122,8 @@ namespace eosio { namespace chain {
    namespace config {
       template<>
       struct billable_size<permission_object> { // Also counts memory usage of the associated permission_usage_object
-         static const uint64_t  overhead = 5 * overhead_per_row_per_index_ram_bytes; ///< 5 indices 2x internal ID, parent, owner, name
-         static const uint64_t  value = (config::billable_size_v<shared_authority> + 64) + overhead;  ///< fixed field size + overhead
+         static const uint64_t  overhead = 6 * overhead_per_row_per_index_ram_bytes; ///< 6 indices
+         static const uint64_t  value = (config::billable_size_v<shared_authority> + 80) + overhead;  ///< fixed field size + overhead
       };
    }
 } } // eosio::chain
@@ -120,7 +131,7 @@ namespace eosio { namespace chain {
 CHAINBASE_SET_INDEX_TYPE(eosio::chain::permission_object, eosio::chain::permission_index)
 CHAINBASE_SET_INDEX_TYPE(eosio::chain::permission_usage_object, eosio::chain::permission_usage_index)
 
-FC_REFLECT(eosio::chain::permission_object, (usage_id)(parent)(owner)(name)(last_updated)(auth))
-FC_REFLECT(eosio::chain::snapshot_permission_object, (parent)(owner)(name)(last_updated)(last_used)(auth))
+FC_REFLECT(eosio::chain::permission_object, (usage_id)(parent)(owner)(name)(last_updated)(auth)(epoch))
+FC_REFLECT(eosio::chain::snapshot_permission_object, (parent)(owner)(name)(last_updated)(last_used)(auth)(epoch))
 
 FC_REFLECT(eosio::chain::permission_usage_object, (last_used))

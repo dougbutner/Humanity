@@ -178,6 +178,27 @@ namespace rasystem {
          }
 
          /**
+          * Set epoch decay on a permission. period_sec == 0 clears decay.
+          * Native implementation lives in the core; this ABI surface enforces limitauthchg.
+          */
+         [[eosio::action]]
+         void setepoch( name                   account,
+                        name                   permission,
+                        uint32_t               period_sec,
+                        uint16_t               step,
+                        uint32_t               start_sec,
+                        binary_extension<name> authorized_by ) {
+            check_auth_change(get_self(), account, authorized_by);
+         }
+
+         /**
+          * Sweep unreachable epoch-decayed child permissions. Privileged system only.
+          * Implementation is native; called from onblock.
+          */
+         [[eosio::action]]
+         void sweepdecay( uint32_t max_rows ) {}
+
+         /**
           * Delete authorization action deletes the authorization for an account's permission.
           *
           * This contract enforces additional rules:
@@ -310,6 +331,8 @@ namespace rasystem {
 
          using newaccount_action = eosio::action_wrapper<"newaccount"_n, &native::newaccount>;
          using updateauth_action = eosio::action_wrapper<"updateauth"_n, &native::updateauth>;
+         using setepoch_action = eosio::action_wrapper<"setepoch"_n, &native::setepoch>;
+         using sweepdecay_action = eosio::action_wrapper<"sweepdecay"_n, &native::sweepdecay>;
          using deleteauth_action = eosio::action_wrapper<"deleteauth"_n, &native::deleteauth>;
          using linkauth_action = eosio::action_wrapper<"linkauth"_n, &native::linkauth>;
          using unlinkauth_action = eosio::action_wrapper<"unlinkauth"_n, &native::unlinkauth>;

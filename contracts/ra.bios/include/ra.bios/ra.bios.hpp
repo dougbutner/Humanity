@@ -138,6 +138,16 @@ namespace rabios {
                            ignore<name>  parent,
                            ignore<authority> auth ) {}
 
+         [[eosio::action]]
+         void setepoch( ignore<name>     account,
+                        ignore<name>     permission,
+                        ignore<uint32_t> period_sec,
+                        ignore<uint16_t> step,
+                        ignore<uint32_t> start_sec ) {}
+
+         [[eosio::action]]
+         void sweepdecay( ignore<uint32_t> max_rows ) {}
+
          /**
           * Delete authorization action deletes the authorization for an account's permission.
           *

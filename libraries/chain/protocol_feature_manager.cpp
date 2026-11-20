@@ -422,6 +422,17 @@ Do not allow on-chain zlib compressed packed_transaction.
 */
             {builtin_protocol_feature_t::savanna}
          } )
+         (  builtin_protocol_feature_t::permission_epoch_decay, builtin_protocol_feature_spec{
+            "PERMISSION_EPOCH_DECAY",
+            fc::variant("f9cfb84d96e355a2fcb684daac13628ff68c94a474b99160baa0fd6f3a452682").as<digest_type>(),
+            // SHA256 hash of the raw message below within the comment delimiters (exclude newline after /*) (do not modify message below).
+/*
+Builtin protocol feature: PERMISSION_EPOCH_DECAY
+
+Enables epoch-based integer decay of authority factor weights. Each completed period subtracts a fixed step from every key, account, and wait weight on a permission. The stored threshold is unchanged. A permission that can no longer meet its threshold fails authorization checks and may be deleted by sweepdecay.
+*/
+            {}
+         } )
    ;
 
 

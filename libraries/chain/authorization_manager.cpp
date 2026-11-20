@@ -11,6 +11,7 @@
 #include <eosio/chain/database_utils.hpp>
 #include <eosio/chain/protocol_state_object.hpp>
 #include <eosio/chain/deep_mind.hpp>
+#include <deque>
 
 
 namespace eosio { namespace chain {
@@ -44,6 +45,7 @@ namespace eosio { namespace chain {
             res.owner = value.owner;
             res.last_updated = value.last_updated;
             res.auth = value.auth.to_authority();
+            res.epoch = value.epoch;
 
             // lookup parent name
             const auto& parent = db.get(value.parent);
@@ -61,6 +63,7 @@ namespace eosio { namespace chain {
             value.owner = row.owner;
             value.last_updated = row.last_updated;
             value.auth = row.auth;
+            value.epoch = row.epoch;
 
             value.parent = 0;
             if (value.id == 0) {
@@ -237,6 +240,64 @@ namespace eosio { namespace chain {
       });
    }
 
+   void authorization_manager::modify_permission_epoch( const permission_object& permission, const auth_epoch& epoch, bool is_trx_transient ) {
+      _db.modify( permission, [&](permission_object& po) {
+         auto dm_logger = _control.get_deep_mind_logger(is_trx_transient);
+
+         std::optional<permission_object> old_permission;
+         if (dm_logger) {
+            old_permission = po;
+         }
+
+         po.epoch = epoch;
+         po.last_updated = _control.pending_block_time();
+
+         if (dm_logger) {
+            dm_logger->on_modify_permission(*old_permission, po);
+         }
+      });
+   }
+
+   uint32_t authorization_manager::sweep_epoch_decay( uint32_t max_rows ) {
+      if( !_control.is_builtin_activated( builtin_protocol_feature_t::permission_epoch_decay ) )
+         return 0;
+      if( max_rows == 0 )
+         return 0;
+
+      const uint32_t now_sec = _control.pending_block_time().sec_since_epoch();
+      auto& idx = _db.get_index<permission_index, by_epoch>();
+      auto itr = idx.lower_bound( 1 ); // period_sec >= 1
+      uint32_t removed = 0;
+
+      while( itr != idx.end() && itr->epoch.period_sec != 0 && removed < max_rows ) {
+         auto cur = itr++;
+         if( cur->name == config::owner_name || cur->name == config::active_name )
+            continue;
+
+         const authority decayed = apply_epoch_decay( cur->auth, cur->epoch, now_sec );
+         if( !authority_unreachable( decayed ) )
+            continue;
+
+         // Unlink every action linked to this permission, then delete it.
+         const auto& link_idx = _db.get_index<permission_link_index, by_permission_name>();
+         auto link_range = link_idx.equal_range( boost::make_tuple( cur->owner, cur->name ) );
+         while( link_range.first != link_range.second ) {
+            auto link_itr = link_range.first++;
+            _db.remove( *link_itr );
+         }
+
+         // Children must be gone first; skip if any remain.
+         const auto& child_idx = _db.get_index<permission_index, by_parent>();
+         auto child_range = child_idx.equal_range( cur->id );
+         if( child_range.first != child_range.second )
+            continue;
+
+         remove_permission( *cur, false );
+         ++removed;
+      }
+      return removed;
+   }
+
    void authorization_manager::remove_permission( const permission_object& permission, bool is_trx_transient ) {
       const auto& index = _db.template get_index<permission_index, by_parent>();
       auto range = index.equal_range(permission.id);
@@ -306,6 +367,8 @@ namespace eosio { namespace chain {
       // Special case native actions cannot be linked to a minimum permission, so there is no need to check.
       if( scope == config::system_account_name ) {
           EOS_ASSERT( act_name != updateauth::get_name() &&
+                     act_name != setepoch::get_name() &&
+                     act_name != sweepdecay::get_name() &&
                      act_name != deleteauth::get_name() &&
                      act_name != linkauth::get_name() &&
                      act_name != unlinkauth::get_name() &&
@@ -364,6 +427,25 @@ namespace eosio { namespace chain {
                                                   _db.get_index<permission_index>().indices() ),
                   irrelevant_auth_exception,
                   "updateauth action declares irrelevant authority '${auth}'; minimum authority is ${min}",
+                  ("auth", auth)("min", permission_level{min_permission.owner, min_permission.name}) );
+   }
+
+   void authorization_manager::check_setepoch_authorization( const setepoch& update,
+                                                             const vector<permission_level>& auths
+                                                           )const
+   {
+      EOS_ASSERT( auths.size() == 1, irrelevant_auth_exception,
+                  "setepoch action should only have one declared authorization" );
+      const auto& auth = auths[0];
+      EOS_ASSERT( auth.actor == update.account, irrelevant_auth_exception,
+                  "the owner of the affected permission needs to be the actor of the declared authorization" );
+
+      const auto& min_permission = get_permission({update.account, update.permission});
+
+      EOS_ASSERT( get_permission(auth).satisfies( min_permission,
+                                                  _db.get_index<permission_index>().indices() ),
+                  irrelevant_auth_exception,
+                  "setepoch action declares irrelevant authority '${auth}'; minimum authority is ${min}",
                   ("auth", auth)("min", permission_level{min_permission.owner, min_permission.name}) );
    }
 
@@ -492,11 +574,17 @@ namespace eosio { namespace chain {
 
       auto effective_provided_delay =  (provided_delay >= delay_max_limit) ? fc::microseconds::maximum() : provided_delay;
 
-      auto checker = make_auth_checker( [&](const permission_level& p) -> const shared_authority* {
-                                          if(const permission_object* po = find_permission(p))
-                                             return &po->auth;
-                                          else
-                                             return nullptr;
+      const bool epoch_decay = _control.is_builtin_activated( builtin_protocol_feature_t::permission_epoch_decay );
+      const uint32_t now_sec = _control.pending_block_time().sec_since_epoch();
+      std::deque<authority> decayed_auths;
+
+      auto checker = make_auth_checker( [&](const permission_level& p) -> const authority* {
+                                          if(const permission_object* po = find_permission(p)) {
+                                             const auth_epoch e = epoch_decay ? po->epoch : auth_epoch{};
+                                             decayed_auths.push_back( apply_epoch_decay( po->auth, e, now_sec ) );
+                                             return &decayed_auths.back();
+                                          }
+                                          return nullptr;
                                         },
                                         _control.get_global_properties().configuration.max_authority_depth,
                                         provided_keys,
@@ -518,6 +606,8 @@ namespace eosio { namespace chain {
                check_updateauth_authorization( act.data_as<updateauth>(), act.authorization );
             } else if( act.name == deleteauth::get_name() ) {
                check_deleteauth_authorization( act.data_as<deleteauth>(), act.authorization );
+            } else if( act.name == setepoch::get_name() ) {
+               check_setepoch_authorization( act.data_as<setepoch>(), act.authorization );
             } else if( act.name == linkauth::get_name() ) {
                check_linkauth_authorization( act.data_as<linkauth>(), act.authorization );
             } else if( act.name == unlinkauth::get_name() ) {
@@ -598,11 +688,17 @@ namespace eosio { namespace chain {
 
       auto delay_max_limit = fc::seconds( _control.get_global_properties().configuration.max_transaction_delay );
 
-      auto checker = make_auth_checker( [&](const permission_level& p) -> const shared_authority* {
-                                          if(const permission_object* po = find_permission(p))
-                                             return &po->auth;
-                                          else
-                                             return nullptr;
+      const bool epoch_decay = _control.is_builtin_activated( builtin_protocol_feature_t::permission_epoch_decay );
+      const uint32_t now_sec = _control.pending_block_time().sec_since_epoch();
+      std::deque<authority> decayed_auths;
+
+      auto checker = make_auth_checker( [&](const permission_level& p) -> const authority* {
+                                          if(const permission_object* po = find_permission(p)) {
+                                             const auth_epoch e = epoch_decay ? po->epoch : auth_epoch{};
+                                             decayed_auths.push_back( apply_epoch_decay( po->auth, e, now_sec ) );
+                                             return &decayed_auths.back();
+                                          }
+                                          return nullptr;
                                         },
                                         _control.get_global_properties().configuration.max_authority_depth,
                                         provided_keys,
@@ -634,11 +730,17 @@ namespace eosio { namespace chain {
                                                                        fc::microseconds provided_delay
                                                                      )const
    {
-      auto checker = make_auth_checker( [&](const permission_level& p) -> const shared_authority* {
-                                          if(const permission_object* po = find_permission(p))
-                                             return &po->auth;
-                                          else
-                                             return nullptr;
+      const bool epoch_decay = _control.is_builtin_activated( builtin_protocol_feature_t::permission_epoch_decay );
+      const uint32_t now_sec = _control.pending_block_time().sec_since_epoch();
+      std::deque<authority> decayed_auths;
+
+      auto checker = make_auth_checker( [&](const permission_level& p) -> const authority* {
+                                          if(const permission_object* po = find_permission(p)) {
+                                             const auth_epoch e = epoch_decay ? po->epoch : auth_epoch{};
+                                             decayed_auths.push_back( apply_epoch_decay( po->auth, e, now_sec ) );
+                                             return &decayed_auths.back();
+                                          }
+                                          return nullptr;
                                         },
                                         _control.get_global_properties().configuration.max_authority_depth,
                                         candidate_keys,

@@ -29,6 +29,10 @@ namespace rasystem {
       // is eventually completely removed, at which point this line can be removed.
       _gstate2.last_block_num = timestamp;
 
+      // Remove child permissions whose epoch decay has made them unreachable.
+      native::sweepdecay_action sweep{ get_self(), { {get_self(), active_permission} } };
+      sweep.send( uint32_t{20} );
+
       /** until activation, no new rewards are paid */
       if( _gstate.thresh_activated_stake_time == time_point() )
          return;

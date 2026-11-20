@@ -194,6 +194,22 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
    });
 
    eos_abi.structs.emplace_back( struct_def {
+      "setepoch", "", {
+         {"account", "account_name"},
+         {"permission", "permission_name"},
+         {"period_sec", "uint32"},
+         {"step", "uint16"},
+         {"start_sec", "uint32"},
+      }
+   });
+
+   eos_abi.structs.emplace_back( struct_def {
+      "sweepdecay", "", {
+         {"max_rows", "uint32"},
+      }
+   });
+
+   eos_abi.structs.emplace_back( struct_def {
       "canceldelay", "", {
          {"canceling_auth", "permission_level"},
          {"trx_id", "transaction_id_type"},
@@ -218,6 +234,8 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
    eos_abi.actions.push_back( action_def{name("setcode"), "setcode",""} );
    eos_abi.actions.push_back( action_def{name("setabi"), "setabi",""} );
    eos_abi.actions.push_back( action_def{name("updateauth"), "updateauth",""} );
+   eos_abi.actions.push_back( action_def{name("setepoch"), "setepoch",""} );
+   eos_abi.actions.push_back( action_def{name("sweepdecay"), "sweepdecay",""} );
    eos_abi.actions.push_back( action_def{name("deleteauth"), "deleteauth",""} );
    eos_abi.actions.push_back( action_def{name("linkauth"), "linkauth",""} );
    eos_abi.actions.push_back( action_def{name("unlinkauth"), "unlinkauth",""} );

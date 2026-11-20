@@ -66,6 +66,34 @@ struct updateauth {
    }
 };
 
+struct setepoch {
+   account_name                      account;
+   permission_name                   permission;
+   uint32_t                          period_sec = 0;
+   uint16_t                          step       = 0;
+   uint32_t                          start_sec  = 0;
+
+   static account_name get_account() {
+      return config::system_account_name;
+   }
+
+   static action_name get_name() {
+      return "setepoch"_n;
+   }
+};
+
+struct sweepdecay {
+   uint32_t                          max_rows = 0;
+
+   static account_name get_account() {
+      return config::system_account_name;
+   }
+
+   static action_name get_name() {
+      return "sweepdecay"_n;
+   }
+};
+
 struct deleteauth {
    deleteauth() = default;
    deleteauth(const account_name& account, const permission_name& permission)
@@ -158,6 +186,8 @@ FC_REFLECT( eosio::chain::newaccount                       , (creator)(name)(own
 FC_REFLECT( eosio::chain::setcode                          , (account)(vmtype)(vmversion)(code) )
 FC_REFLECT( eosio::chain::setabi                           , (account)(abi) )
 FC_REFLECT( eosio::chain::updateauth                       , (account)(permission)(parent)(auth) )
+FC_REFLECT( eosio::chain::setepoch                         , (account)(permission)(period_sec)(step)(start_sec) )
+FC_REFLECT( eosio::chain::sweepdecay                       , (max_rows) )
 FC_REFLECT( eosio::chain::deleteauth                       , (account)(permission) )
 FC_REFLECT( eosio::chain::linkauth                         , (account)(code)(type)(requirement) )
 FC_REFLECT( eosio::chain::unlinkauth                       , (account)(code)(type) )

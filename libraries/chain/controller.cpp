@@ -1379,19 +1379,21 @@ struct controller_impl {
          vote_processor.notify_lib(block->block_num());
       });
 
-#define SET_APP_HANDLER( receiver, contract, action) \
-   set_apply_handler( account_name(#receiver), account_name(#contract), action_name(#action), \
-                      &BOOST_PP_CAT(apply_, BOOST_PP_CAT(contract, BOOST_PP_CAT(_,action) ) ) )
+#define SET_APP_HANDLER( action) \
+   set_apply_handler( config::system_account_name, config::system_account_name, action_name(#action), \
+                      &BOOST_PP_CAT(apply_eosio_, action) )
 
-   SET_APP_HANDLER( eosio, eosio, newaccount );
-   SET_APP_HANDLER( eosio, eosio, setcode );
-   SET_APP_HANDLER( eosio, eosio, setabi );
-   SET_APP_HANDLER( eosio, eosio, updateauth );
-   SET_APP_HANDLER( eosio, eosio, deleteauth );
-   SET_APP_HANDLER( eosio, eosio, linkauth );
-   SET_APP_HANDLER( eosio, eosio, unlinkauth );
+   SET_APP_HANDLER( newaccount );
+   SET_APP_HANDLER( setcode );
+   SET_APP_HANDLER( setabi );
+   SET_APP_HANDLER( updateauth );
+   SET_APP_HANDLER( setepoch );
+   SET_APP_HANDLER( sweepdecay );
+   SET_APP_HANDLER( deleteauth );
+   SET_APP_HANDLER( linkauth );
+   SET_APP_HANDLER( unlinkauth );
 
-   SET_APP_HANDLER( eosio, eosio, canceldelay );
+   SET_APP_HANDLER( canceldelay );
    }
 
    void open_fork_db() {

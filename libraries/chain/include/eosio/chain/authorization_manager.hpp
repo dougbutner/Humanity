@@ -12,6 +12,7 @@ namespace eosio { namespace chain {
    class controller;
    struct updateauth;
    struct deleteauth;
+   struct setepoch;
    struct linkauth;
    struct unlinkauth;
    struct canceldelay;
@@ -46,7 +47,12 @@ namespace eosio { namespace chain {
 
          void modify_permission( const permission_object& permission, const authority& auth, bool is_trx_transient );
 
+         void modify_permission_epoch( const permission_object& permission, const auth_epoch& epoch, bool is_trx_transient );
+
          void remove_permission( const permission_object& permission, bool is_trx_transient );
+
+         /** Delete unreachable child permissions that have epoch decay. Owner/active are skipped. */
+         uint32_t sweep_epoch_decay( uint32_t max_rows );
 
          void update_permission_usage( const permission_object& permission );
 
@@ -124,6 +130,7 @@ namespace eosio { namespace chain {
 
          void             check_updateauth_authorization( const updateauth& update, const vector<permission_level>& auths )const;
          void             check_deleteauth_authorization( const deleteauth& del, const vector<permission_level>& auths )const;
+         void             check_setepoch_authorization( const setepoch& update, const vector<permission_level>& auths )const;
          void             check_linkauth_authorization( const linkauth& link, const vector<permission_level>& auths )const;
          void             check_unlinkauth_authorization( const unlinkauth& unlink, const vector<permission_level>& auths )const;
          fc::microseconds check_canceldelay_authorization( const canceldelay& cancel, const vector<permission_level>& auths )const;

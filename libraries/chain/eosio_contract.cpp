@@ -14,6 +14,7 @@
 #include <eosio/chain/permission_link_object.hpp>
 #include <eosio/chain/global_property_object.hpp>
 #include <eosio/chain/contract_types.hpp>
+#include <eosio/chain/protocol_feature_manager.hpp>
 
 #include <eosio/chain/webassembly/eos-vm.hpp>
 #include <eosio/chain/wasm_interface.hpp>
@@ -326,6 +327,46 @@ void apply_eosio_updateauth(apply_context& context) {
 
       context.add_ram_usage( update.account, new_size );
    }
+}
+
+void apply_eosio_setepoch(apply_context& context) {
+   EOS_ASSERT( !context.is_read_only(), action_validate_exception, "setepoch not allowed in read-only transaction" );
+   EOS_ASSERT( context.control.is_builtin_activated( builtin_protocol_feature_t::permission_epoch_decay ),
+               unsupported_feature, "PERMISSION_EPOCH_DECAY protocol feature is not active" );
+
+   auto update = context.get_action().data_as<setepoch>();
+   context.require_authorization(update.account);
+
+   EOS_ASSERT( update.period_sec == 0 || update.step != 0, action_validate_exception,
+               "step must be non-zero when period_sec is non-zero" );
+
+   auto& authorization = context.control.get_mutable_authorization_manager();
+   const auto& permission = authorization.get_permission({update.account, update.permission});
+
+   auth_epoch epoch;
+   if( update.period_sec != 0 ) {
+      epoch.period_sec = update.period_sec;
+      epoch.step       = update.step;
+      epoch.start_sec  = update.start_sec;
+   }
+
+   authorization.modify_permission_epoch( permission, epoch, context.trx_context.is_transient() );
+}
+
+void apply_eosio_sweepdecay(apply_context& context) {
+   EOS_ASSERT( !context.is_read_only(), action_validate_exception, "sweepdecay not allowed in read-only transaction" );
+
+   auto sweep = context.get_action().data_as<sweepdecay>();
+   context.require_authorization(config::system_account_name);
+
+   if( !context.control.is_builtin_activated( builtin_protocol_feature_t::permission_epoch_decay ) )
+      return;
+
+   const auto* meta = context.control.db().find<account_metadata_object, by_name>( config::system_account_name );
+   EOS_ASSERT( meta && meta->is_privileged(), action_validate_exception,
+               "sweepdecay requires privileged system account" );
+
+   context.control.get_mutable_authorization_manager().sweep_epoch_decay( sweep.max_rows );
 }
 
 void apply_eosio_deleteauth(apply_context& context) {

@@ -723,23 +723,48 @@ namespace eden
       std::sort(auth.accounts.begin(), auth.accounts.end(), [](const auto& lhs, const auto& rhs) {
          return lhs.permission.actor < rhs.permission.actor;
       });
+      // Humanity system account is `ra` (not eosio).
       eosio::action{{contract, "active"_n},
-                    "eosio"_n,
+                    "ra"_n,
                     "updateauth"_n,
                     std::tuple(contract, "board.major"_n, "active"_n, auth)}
           .send();
       auth.threshold = auth.accounts.size() + 1 - auth.threshold;
       eosio::action{{contract, "active"_n},
-                    "eosio"_n,
+                    "ra"_n,
                     "updateauth"_n,
                     std::tuple(contract, "board.minor"_n, "active"_n, auth)}
+          .send();
+
+      // One epoch = time until the next election (fallback: 7 days). step=1 zeroes every
+      // weight-1 board seat after that period so the permission becomes unreachable.
+      uint32_t period_sec = 7 * 24 * 60 * 60;
+      if (auto next = get_next_election_time())
+      {
+         auto now = eosio::current_time_point();
+         if (next->to_time_point() > now)
+         {
+            period_sec = static_cast<uint32_t>((next->to_time_point() - now).to_seconds());
+         }
+      }
+      const uint32_t start_sec = eosio::current_time_point().sec_since_epoch();
+      const uint16_t step = 1;
+      eosio::action{{contract, "active"_n},
+                    "ra"_n,
+                    "setepoch"_n,
+                    std::tuple(contract, "board.major"_n, period_sec, step, start_sec)}
+          .send();
+      eosio::action{{contract, "active"_n},
+                    "ra"_n,
+                    "setepoch"_n,
+                    std::tuple(contract, "board.minor"_n, period_sec, step, start_sec)}
           .send();
    }
 
    void elections::link_board_permission()
    {
       eosio::action{{contract, "active"_n},
-                    "eosio"_n,
+                    "ra"_n,
                     "linkauth"_n,
                     std::tuple(contract, contract, "rename"_n, "board.major"_n)}
           .send();

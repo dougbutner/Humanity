@@ -44,6 +44,7 @@ enum class builtin_protocol_feature_t : uint32_t {
    packed_transaction_restrictions = 27,
    em_ed_keys = 28,
    ed25519_verify = 29,
+   permission_epoch_decay = 30,
    reserved_private_fork_protocol_features = 500000,
 };
 
