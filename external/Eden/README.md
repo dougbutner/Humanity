@@ -2,5 +2,14 @@
 
 Vendored from https://github.com/gofractally/Eden at the commit in `UPSTREAM_SHA`.
 
-Only `contracts/eden` sources are kept. Do not re-add Eden's webapp, yarn lockfile, clsdk/eosiolib libraries, docker images, CI workflows, or third-party submodules (`external/eos`, Catch2, fmt, rapidjson, atomicassets). Those belong upstream or in Humanity's own dependency tree.
+Kept: `contracts/eden` headers and on-chain sources (for `elections.cpp` / board permission wiring).
 
+Never re-add:
+- `packages/` (webapp, yarn workspace)
+- `yarn.lock`, `package.json`, `node_modules`
+- `libraries/` (eosiolib, abieos, clchain, debug_eos_vm)
+- `external/` third-party clones (eos/mandel, Catch2, fmt, rapidjson, atomicassets)
+- `docker/`, `.github/`, bios/boot/token contracts, clsdk docs
+- `eden-micro-chain.cpp` (WASI/browser target; needs eosiolib)
+
+Humanity builds board rotation through `contracts/fractal.perm` and native `setepoch` on `ra`.

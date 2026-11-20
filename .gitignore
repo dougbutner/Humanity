@@ -3,6 +3,32 @@ build/
 build-*/
 devnet/
 
+# Eden vendor: keep contracts/eden sources only (see external/Eden/README.md)
+external/Eden/packages/
+external/Eden/libraries/
+external/Eden/external/
+external/Eden/docker/
+external/Eden/doc/
+external/Eden/wasm/
+external/Eden/native/
+external/Eden/plugins/
+external/Eden/programs/
+external/Eden/scripts/
+external/Eden/.github/
+external/Eden/node_modules/
+external/Eden/yarn.lock
+external/Eden/package.json
+external/Eden/lerna.json
+external/Eden/.gitmodules
+external/Eden/contracts/bios/
+external/Eden/contracts/bios2/
+external/Eden/contracts/bios3/
+external/Eden/contracts/boot/
+external/Eden/contracts/token/
+external/Eden/contracts/eden/src/eden-micro-chain.cpp
+external/Eden/contracts/eden/src/eden-ricardian.cpp
+external/Eden/contracts/eden/tests/
+
 # In-source CMake (a macOS tree was committed once; never again)
 CMakeCache.txt
 CMakeFiles/
