@@ -8,7 +8,7 @@ content_title: Keyd
 
 ## Installation
 
-`keyd` is distributed as part of the [Channel software suite](https://github.com/TetraGrids/The-Channel). To install `keyd` just visit the [Channel Software Installation](../00_install/index.md) section.
+`keyd` is distributed as part of the [Humanity software suite](https://github.com/dougbutner/Humanity). To install `keyd` just visit the [Humanity Software Installation](../00_install/index.md) section.
 
 ## Operation
 

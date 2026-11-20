@@ -24,5 +24,5 @@ inline void push_action(TESTER& tester, action&& act, uint64_t authorizer) {
    tester.produce_block();
 }
 
-const string base_dir = "/Users/fresh/Dropbox/htdocs/The-Channel/unittests/wasm-spec-tests/generated-tests/wasms";
+const string base_dir = "/Users/fresh/Dropbox/htdocs/Humanity/unittests/wasm-spec-tests/generated-tests/wasms";
 

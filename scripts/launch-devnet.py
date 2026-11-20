@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Boot a local Channel single-producer chain with ra.* contracts and RA.
+"""Boot a local Humanity single-producer chain with ra.* contracts and RA.
 
 Requires built channeld/chan/keyd and compiled contract wasm (cmake
 -DBUILD_CONTRACTS=ON, or artifacts from the Compile contracts Action).
@@ -302,7 +302,7 @@ def deploy_optional(args: argparse.Namespace, account: str, wasm_stem: str, extr
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Launch a local Channel chain and boot ra.* contracts.")
+    parser = argparse.ArgumentParser(description="Launch a local Humanity chain and boot ra.* contracts.")
     parser.add_argument("--build-dir", type=Path, default=REPO_ROOT / "build")
     parser.add_argument("--channeld")
     parser.add_argument("--chan")

@@ -7,7 +7,7 @@ This how-to guide provides instructions on how to create a keypair consisting of
 Make sure you meet the following requirements:
 * Install the currently supported version of `chan`
 [[info | Note]]
-| The chan tool is bundled with the Antelope software. [Installing Antelope](../../00_install/index.md) will also install the chan tool. 
+| The chan tool is bundled with the Humanity software. [Installing Humanity](../../00_install/index.md) will also install the chan tool. 
 * Learn about asymmetric cryptography (public and private keypair) in the context of an Antelope blockchain.
 
 ## Command Reference

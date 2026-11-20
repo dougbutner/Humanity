@@ -18,16 +18,16 @@ Requires the `EM_ED_KEYS` protocol feature (already in `channeld` and `scripts/l
 
 ### `ra.authex::linksig`
 
-The Channel account must authorize. The same user signs this exact UTF-8 string (no extra spaces):
+Humanity account must authorize. The same user signs this exact UTF-8 string (no extra spaces):
 
 ```text
 <pubkey>|<account>|<chain>|<nonce>|createlink auth
 ```
 
-- `<pubkey>` is the Channel string (`PUB_EM_0x…` or `PUB_ED_…`)
+- `<pubkey>` is the Humanity string (`PUB_EM_0x…` or `PUB_ED_…`)
 - `<nonce>` starts at `0` per account and increments on each successful `linksig`
 
-Digest is `sha256(message)`. Wallets must sign that **32-byte digest** the same way they sign a Channel transaction:
+Digest is `sha256(message)`. Wallets must sign that **32-byte digest** the same way they sign a Humanity transaction:
 
 - **MetaMask / EM:** `personal_sign` of the 32 digest bytes (EIP-191 prefix `"\x19Ethereum Signed Message:\n32"`). Do not `personal_sign` the UTF-8 message string; that hash will not match `recover_key`.
 - **Phantom / ED:** sign the ASCII hex of the digest (64 hex characters), matching host ED recovery.
@@ -36,7 +36,7 @@ Digest is `sha256(message)`. Wallets must sign that **32-byte digest** the same 
 
 ### `ra.claim::claimsig`
 
-A deposit must already be `credit`ed. Anyone may submit `claimsig(id, sig)`; the first authorizer pays CPU. The signer is the linked EM/ED key, not the Channel account. Message:
+A deposit must already be `credit`ed. Anyone may submit `claimsig(id, sig)`; the first authorizer pays CPU. The signer is the linked EM/ED key, not the Humanity account. Message:
 
 ```text
 <ext_txid>|<recipient>|<quantity>|<chain>|<id>|claim auth
@@ -50,9 +50,9 @@ v1 `claim(id)` with `require_auth(recipient)` remains.
 
 ## Lazy account (claimopen)
 
-`credit` still requires the Channel account to exist. A relayer who is naming an account that does not exist yet calls `creditopen` with:
+`credit` still requires the Humanity account to exist. A relayer who is naming an account that does not exist yet calls `creditopen` with:
 
-- the Channel pubkey string (`PUB_EM_…` or `PUB_ED_…`)
+- the Humanity pubkey string (`PUB_EM_…` or `PUB_ED_…`)
 - `fc::raw::pack` of that same public key (`packedkey`)
 
 `claimopen` recovers

@@ -16,7 +16,7 @@
 int main(int argc, char** argv) {
    fc::logger::get(DEFAULT_LOGGER).set_log_level(fc::log_level::debug);
 
-   CLI::App app{"The Channel Command Line Utility"};
+   CLI::App app{"Humanity Command Line Utility"};
 
    // custom leap formatter
    auto fmt = std::make_shared<CLI::SpringFormatter>();

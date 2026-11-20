@@ -27,7 +27,7 @@ Make sure you meet the following requirements:
 
 * Install the currently supported version of `chan`.
 [[info | Note]]
-| `chan` is bundled with the Antelope software. [Installing Antelope](../../../00_install/index.md) will also install the `chan` and `keyd` command line tools.
+| `chan` is bundled with the Humanity software. [Installing Humanity](../../../00_install/index.md) will also install the `chan` and `keyd` command line tools.
 * You have access to a producing node instance with the [`net_api_plugin`](../../../01_channeld/03_plugins/net_api_plugin/index.md) loaded.
 
 ## Examples

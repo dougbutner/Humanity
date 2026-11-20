@@ -3042,7 +3042,7 @@ int main( int argc, char** argv ) {
 
    wallet_url = default_wallet_url;
 
-   CLI::App app{"Command Line Interface to The Channel Client"};
+   CLI::App app{"Command Line Interface to Humanity Client"};
 
    // custom leap formatter
    auto fmt = std::make_shared<CLI::SpringFormatter>();

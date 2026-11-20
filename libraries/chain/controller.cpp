@@ -2381,7 +2381,7 @@ struct controller_impl {
 
       block_state_pair result;
       if (header.version >= v8::minimum_version) {
-         // loading a snapshot saved by The Channel 1.0.1 and above.
+         // loading a snapshot saved by Humanity 1.0.1 and above.
          // ---------------------------------------------------
          if (std::clamp(header.version, v8::minimum_version, v8::maximum_version) == header.version ) {
             snapshot->read_section("eosio::chain::block_state", [this, &result]( auto &section ){
@@ -2408,10 +2408,10 @@ struct controller_impl {
             EOS_THROW(snapshot_exception, "Unsupported block_state version");
          }
       } else if (header.version == 7) {
-         // snapshot created with The Channel 1.0.0, which was very soon superseded by The Channel 1.0.1
+         // snapshot created with Humanity 1.0.0, which was very soon superseded by Humanity 1.0.1
          // and a new snapshot format.
          // ----------------------------------------------------------------------------------
-         EOS_THROW(snapshot_exception, "v7 snapshots are not supported anymore in The Channel 1.0.1 and above");
+         EOS_THROW(snapshot_exception, "v7 snapshots are not supported anymore in Humanity 1.0.1 and above");
       } else {
          // loading a snapshot saved by Leap up to version 6.
          // -------------------------------------------------

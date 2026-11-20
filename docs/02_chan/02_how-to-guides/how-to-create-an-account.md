@@ -10,7 +10,7 @@ Make sure you meet the following requirements:
 
 * Install the currently supported version of `chan`.
 [[info | Note]]
-| The chan tool is bundled with the Antelope software. [Installing Antelope](../../00_install/index.md) will also install the chan tool.
+| The chan tool is bundled with the Humanity software. [Installing Humanity](../../00_install/index.md) will also install the chan tool.
 * Learn about [Antelope Accounts and Permissions](/protocol-guides/04_accounts_and_permissions.md)
 * Learn about Asymmetric Cryptography - [public key](/glossary.md#public-key) and [private key](/glossary.md#private-key) pairs.
 * Create public/private keypairs for the `owner` and `active` permissions of an account.

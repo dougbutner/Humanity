@@ -7,8 +7,8 @@
 #include <fc/io/incbin.h>
 
 #define MAKE_EMBEDDED_WASM_ABI(CN,C, D)                                                                                                                                       \
-INCBIN(eosio_testing_contract_ ## CN ## _wasm, "/Users/fresh/Dropbox/htdocs/The-Channel/libraries/testing/" #D "/" #C "/" #C ".wasm");                                                            \
-INCTXT(eosio_testing_contract_ ## CN ## _abi,  "/Users/fresh/Dropbox/htdocs/The-Channel/libraries/testing/" #D "/" #C "/" #C ".abi");                                                             \
+INCBIN(eosio_testing_contract_ ## CN ## _wasm, "/Users/fresh/Dropbox/htdocs/Humanity/libraries/testing/" #D "/" #C "/" #C ".wasm");                                                            \
+INCTXT(eosio_testing_contract_ ## CN ## _abi,  "/Users/fresh/Dropbox/htdocs/Humanity/libraries/testing/" #D "/" #C "/" #C ".abi");                                                             \
                                                                                                                                                                               \
 namespace eosio::testing {                                                                                                                                                    \
    std::vector<std::uint8_t> contracts:: CN ## _wasm() {                                                                                                                      \

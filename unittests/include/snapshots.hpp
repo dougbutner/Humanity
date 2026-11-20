@@ -39,7 +39,7 @@ namespace eosio {
 
       template <typename TypeTag>
       struct snapshot_file {
-         static constexpr auto base_path = "/Users/fresh/Dropbox/htdocs/The-Channel/unittests/snapshots/";
+         static constexpr auto base_path = "/Users/fresh/Dropbox/htdocs/Humanity/unittests/snapshots/";
          static inline constexpr auto file_suffix() {
             if constexpr (snapshot::is_json_v<TypeTag>)
                return ".json.gz";

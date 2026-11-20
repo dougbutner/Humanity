@@ -12,7 +12,7 @@ namespace eosio { namespace chain {
     * The key and value limits apply when adding or modifying elements.  They may be reduced
     * below existing database entries.
     * 
-    * Current uses of kv_database_config were removed in The Channel 1.0.
+    * Current uses of kv_database_config were removed in Humanity 1.0.
     * Do not use it in the future.
     *
     * The file is kept for backward compatibilities as kv_database_config was used

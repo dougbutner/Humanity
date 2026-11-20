@@ -12,7 +12,7 @@ The `bios-boot-tutorial.py` script simulates the bios boot sequence.
 
 ## Steps
 
-1. Install the latest [The Channel binaries](https://github.com/AntelopeIO/spring/releases) by following the steps provided in the README.
+1. Install the latest [Humanity binaries](https://github.com/AntelopeIO/spring/releases) by following the steps provided in the README.
 
 2. Install the latest [CDT binaries](https://github.com/AntelopeIO/cdt/releases) by following the steps provided in the README.
 

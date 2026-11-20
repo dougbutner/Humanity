@@ -15,11 +15,11 @@ The `log_reader.py` support script is used primarily to analyze `channeld` log f
 # Getting Started
 ## Prerequisites
 
-Please refer to [The Channel: Build and Install from Source](https://github.com/AntelopeIO/spring/#build-and-install-from-source) for a full list of prerequisites.
+Please refer to [Humanity: Build and Install from Source](https://github.com/AntelopeIO/spring/#build-and-install-from-source) for a full list of prerequisites.
 
 ## Steps
 
-1. Build The Channel. For complete instructions on building from source please refer to [The Channel: Build and Install from Source](https://github.com/AntelopeIO/spring/#build-and-install-from-source) For older compatible channeld versions, such as 2.X, the following binaries need to be replaced with the older version: `build/programs/channeld/channeld`, `build/programs/chan/chan`, `bin/channeld`, and `bin/chan`.
+1. Build Humanity. For complete instructions on building from source please refer to [Humanity: Build and Install from Source](https://github.com/AntelopeIO/spring/#build-and-install-from-source) For older compatible channeld versions, such as 2.X, the following binaries need to be replaced with the older version: `build/programs/channeld/channeld`, `build/programs/chan/chan`, `bin/channeld`, and `bin/chan`.
 2. Run Performance Tests
     1. Full Performance Harness Test Run (Standard):
         ``` bash

@@ -7,7 +7,7 @@ This how-to guide provides instructions on how to query infomation of an Antelop
 * Install the currently supported version of `chan`
 
 [[info | Note]]
-| The chan tool is bundled with the Antelope software. [Installing Antelope](../../00_install/index.md) will also install the chan tool.
+| The chan tool is bundled with the Humanity software. [Installing Humanity](../../00_install/index.md) will also install the chan tool.
 
 * Acquire functional understanding of [Antelope Accounts and Permissions](/protocol-guides/04_accounts_and_permissions.md)
 

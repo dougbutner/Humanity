@@ -11,7 +11,7 @@ Make sure you meet the following requirements:
 * Install the currently supported version of `chan`.
 
 [[info | Note]]
-| `chan` is bundled with the Antelope software. [Installing Antelope](../../00_install/index.md) will also install `chan`.
+| `chan` is bundled with the Humanity software. [Installing Humanity](../../00_install/index.md) will also install `chan`.
 
 * Understand what an [account](/glossary.md#account) is and its role in the blockchain.
 * Understand [Accounts and Permissions](/protocol-guides/04_accounts_and_permissions.md) in the protocol documents.

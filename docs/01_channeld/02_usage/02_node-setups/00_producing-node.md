@@ -11,7 +11,7 @@ This section describes how to set up a producing node within the Antelope networ
 
 ## Before you begin
 
-* [Install the Antelope software](../../../00_install/index.md) before starting this section.
+* [Install the Humanity software](../../../00_install/index.md) before starting this section.
 * It is assumed that `channeld`, `chan`, and `keyd` are accessible through the path.
 
 [//]: # ( THIS IS A COMMENT LINK BELOW IS BROKEN )  

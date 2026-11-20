@@ -7,12 +7,12 @@
 #define MAKE_READ_WASM_ABI(CN,C, D)                                                         \
    static std::vector<uint8_t> CN ## _wasm() {                                              \
       std::string s;                                                                        \
-      fc::read_file_contents("/Users/fresh/Dropbox/htdocs/The-Channel/unittests/" #D "/" #C "/" #C ".wasm", s); \
+      fc::read_file_contents("/Users/fresh/Dropbox/htdocs/Humanity/unittests/" #D "/" #C "/" #C ".wasm", s); \
       return std::vector<uint8_t>(s.begin(), s.end());                                      \
    }                                                                                        \
    static std::string CN ## _abi() {                                                        \
       std::string s;                                                                        \
-      fc::read_file_contents("/Users/fresh/Dropbox/htdocs/The-Channel/unittests/" #D "/" #C "/" #C ".abi", s);  \
+      fc::read_file_contents("/Users/fresh/Dropbox/htdocs/Humanity/unittests/" #D "/" #C "/" #C ".abi", s);  \
       return s;                                                                             \
    }
 

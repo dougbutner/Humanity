@@ -534,7 +534,7 @@ BOOST_FIXTURE_TEST_CASE(validate_qc_requiring_finalizer_policies, savanna_cluste
    BOOST_REQUIRE_EQUAL(active->generation, p2);         // b6 has active finalizer policy p2
    BOOST_REQUIRE(!A.head_pending_finalizer_policy());   // and no pending finalizer policy.
 
-   // At this point, in the The Channel 1.0.0 implementation (which has the bug described in issue #694),
+   // At this point, in the Humanity 1.0.0 implementation (which has the bug described in issue #694),
    // policy P2 is lost from the block_header_state of B6, which is the source of the problem
 
    auto b6_snapshot = A.snapshot();
@@ -694,8 +694,8 @@ static void sync_replayed_blockchain(const std::filesystem::path& ref_blockchain
 
 // ----------------------------------------------------------------------------------------------------
 // For issue #694, we need to change the finality core of the `block_header_state`, but we want to
-// ensure that this doesn't create a consensus incompatibility with The Channel 1.0.0, so the blocks created
-// with newer versions remain compatible (and linkable) with blocks by The Channel 1.0.0.
+// ensure that this doesn't create a consensus incompatibility with Humanity 1.0.0, so the blocks created
+// with newer versions remain compatible (and linkable) with blocks by Humanity 1.0.0.
 //
 // This test adds a utility that saves reference blockchain data and checks for
 // regression in compatibility of syncing and replaying the reference blockchain data.

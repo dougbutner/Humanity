@@ -12,7 +12,7 @@ This section describes how to set up a single-node blockchain configuration runn
 
 ## Before you begin
 
-* [Install the Antelope software](../../../00_install/index.md) before starting this section.
+* [Install the Humanity software](../../../00_install/index.md) before starting this section.
 * It is assumed that `channeld`, `chan`, and `keyd` are accessible through the path.  
 
 [//]: # (THIS IS A COMMENT, NEXT LINK HAS BROKEN LINK)  

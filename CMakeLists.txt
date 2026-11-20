@@ -1,6 +1,6 @@
 cmake_minimum_required( VERSION 3.21...4.0 )
 
-project( the-channel )
+project( humanity )
 include(CTest)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
@@ -78,7 +78,7 @@ if(ENABLE_OC AND CMAKE_SIZEOF_VOID_P EQUAL 8 AND NOT WIN32)
       # can be created with the exact version found
       find_package(LLVM REQUIRED CONFIG)
       if(LLVM_VERSION_MAJOR VERSION_LESS 7 OR LLVM_VERSION_MAJOR VERSION_GREATER_EQUAL 12)
-	      message(FATAL_ERROR "The Channel requires an LLVM version 7 through 11")
+	      message(FATAL_ERROR "Humanity requires an LLVM version 7 through 11")
       endif()
    endif()
 endif()
@@ -106,12 +106,12 @@ endif()
 
 if( APPLE AND UNIX )
 # Apple Specific Options Here
-    message( STATUS "Configuring The Channel on macOS" )
+    message( STATUS "Configuring Humanity on macOS" )
     set( CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -Wall -Wno-deprecated-declarations" )
     set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-deprecated-declarations" )
 else()
     # Linux Specific Options Here
-    message( STATUS "Configuring The Channel on Linux" )
+    message( STATUS "Configuring Humanity on Linux" )
     set( CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -Wall" )
     set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall" )
     if ( FULL_STATIC_BUILD )
@@ -141,13 +141,13 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND CMAKE_CXX_COMPILER_VERSION VERSION_
   set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wthread-safety" )
 endif()
 
-option(EOSIO_ENABLE_DEVELOPER_OPTIONS "enable developer options for The Channel" OFF)
+option(EOSIO_ENABLE_DEVELOPER_OPTIONS "enable developer options for Humanity" OFF)
 
 # based on http://www.delorie.com/gnu/docs/gdb/gdb_70.html
 # uncomment this line to tell GDB about macros (slows compile times)
 # set( CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -gdwarf-2 -g3" )
 
-set(ENABLE_COVERAGE_TESTING FALSE CACHE BOOL "Build The Channel for code coverage analysis")
+set(ENABLE_COVERAGE_TESTING FALSE CACHE BOOL "Build Humanity for code coverage analysis")
 
 if(ENABLE_COVERAGE_TESTING)
   SET(CMAKE_C_FLAGS   "--coverage ${CMAKE_C_FLAGS}")
@@ -180,7 +180,7 @@ message( STATUS "Using '${CHANNEL_ROOT_KEY}' as public key for 'ra' account" )
 option(ENABLE_TCMALLOC "use tcmalloc (requires gperftools)" OFF)
 if( ENABLE_TCMALLOC )
     find_package( Gperftools REQUIRED )
-    message( STATUS "Compiling The Channel with TCMalloc")
+    message( STATUS "Compiling Humanity with TCMalloc")
     #if doing this by the book, simply link_libraries( ${GPERFTOOLS_TCMALLOC} ) here. That will
     #give the performance benefits of tcmalloc but since it won't be linked last
     #the heap profiler & checker may not be accurate. This here is rather undocumented behavior

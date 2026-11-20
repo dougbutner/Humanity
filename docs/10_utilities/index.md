@@ -1,6 +1,6 @@
 ---
-content_title: Antelope Utilities
-link_text: Antelope Utilities
+content_title: Humanity Utilities
+link_text: Humanity Utilities
 ---
 
 This section contains documentation for additional utilities that complement or extend `channeld` and potentially other Antelope software:

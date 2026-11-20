@@ -10,7 +10,7 @@ info:
     url: https://antelope.io
 tags:
   - name: Protocol Version 4.0
-    description: The release tag for The Channel binaries is also the protocol version
+    description: The release tag for Humanity binaries is also the protocol version
 servers:
   - url: "{protocol}://{host}:{port}/v1"
     variables:

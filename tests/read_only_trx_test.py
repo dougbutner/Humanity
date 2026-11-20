@@ -108,7 +108,7 @@ def startCluster():
     specificExtraChanneldArgs[pnodes]+=" --read-only-write-window-time-us "
     specificExtraChanneldArgs[pnodes]+=" 10000 "
     specificExtraChanneldArgs[pnodes]+=" --read-only-read-window-time-us "
-    specificExtraChanneldArgs[pnodes]+=" 510000 " # larger than block time to test The Channel Issue #1286
+    specificExtraChanneldArgs[pnodes]+=" 510000 " # larger than block time to test Humanity Issue #1286
     specificExtraChanneldArgs[pnodes]+=" --eos-vm-oc-cache-size-mb "
     specificExtraChanneldArgs[pnodes]+=" 1 " # set small so there is churn
     specificExtraChanneldArgs[pnodes]+=" --read-only-threads "

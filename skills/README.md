@@ -4,7 +4,7 @@ Cursor project skills live in [`.cursor/skills/`](../.cursor/skills/). Keep that
 
 | Skill | Use |
 | --- | --- |
-| [antelope](../.cursor/skills/antelope/SKILL.md) | Antelope / Spring / The Channel node and contracts |
+| [antelope](../.cursor/skills/antelope/SKILL.md) | Antelope / Spring / Humanity node and contracts |
 | [antelope-core-dev](../.cursor/skills/antelope-core-dev/SKILL.md) | Node / Spring-style C++ |
 | [antelope-dev-style](../.cursor/skills/antelope-dev-style/SKILL.md) | CDT contract C++ (`ACTION` / `TABLE`) |
 | [mainnet-todo-issues](../.cursor/skills/mainnet-todo-issues/SKILL.md) | `TO-DO-B4-MAINNET.md` ↔ GitHub issues |

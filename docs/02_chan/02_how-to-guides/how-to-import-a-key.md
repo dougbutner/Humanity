@@ -11,7 +11,7 @@ Make sure you meet the following requirements:
 * Familiarize with the [`chan wallet import`](../03_command-reference/wallet/import.md) command.
 * Install the currently supported version of `chan`.
 [[info | Note]]
-| `chan` is bundled with the Antelope software. [Installing Antelope](../../00_install/index.md) will also install `chan`.
+| `chan` is bundled with the Humanity software. [Installing Humanity](../../00_install/index.md) will also install `chan`.
 * Understand what a [public key](/glossary.md#public-key) and [private key](/glossary.md#private-key) is.
 
 ## Command Reference

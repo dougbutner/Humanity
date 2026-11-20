@@ -10,7 +10,7 @@ Make sure you meet the following requirements:
 * Install the currently supported version of `chan`.
 
 [[info | Note]]
-| `chan` is bundled with the Antelope software. [Installing Antelope](../../00_install/index.md) will also install `chan`.
+| `chan` is bundled with the Humanity software. [Installing Humanity](../../00_install/index.md) will also install `chan`.
 
 * Ensure the reference system contracts from [`reference-contracts`](https://github.com/AntelopeIO/reference-contracts) repository is deployed and used to manage system resources.
 * Understand what an [account](/glossary.md#account) is and its role in the blockchain.

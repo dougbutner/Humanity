@@ -391,7 +391,7 @@ void compatible_versions_test()
    std::string current_version = "v9";
 
    int ordinal = 0;
-   for(std::string version : {"v2", "v3", "v4", "v5", "v6", "v8", "v9"}) // v7 version not supported in The Channel 1.0.1 and above
+   for(std::string version : {"v2", "v3", "v4", "v5", "v6", "v8", "v9"}) // v7 version not supported in Humanity 1.0.1 and above
    {
       if(save_snapshot && version == current_version) continue;
       static_assert(chain_snapshot_header::minimum_compatible_version <= 2, "version 2 unit test is no longer needed.  Please clean up data files");
