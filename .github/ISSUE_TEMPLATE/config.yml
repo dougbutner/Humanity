@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Tetra
+    url: https://tetra.earth
+    about: The grid this chain settles. Product questions about Passport, Discovery, Recurve, and Localize start there.
+  - name: Security advisory
+    url: https://github.com/dougbutner/Humanity/security/advisories/new
+    about: Report a vulnerability in private. Do not open a public issue for it.

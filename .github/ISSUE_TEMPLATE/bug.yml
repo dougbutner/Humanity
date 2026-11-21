@@ -1,0 +1,50 @@
+name: Bug
+description: Something in the node, a contract, or the docs disagreed with what you ran.
+title: "[bug] "
+labels:
+  - bug
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - node
+        - contracts
+        - docs
+        - ci
+        - pages
+    validations:
+      required: true
+  - type: input
+    id: host
+    attributes:
+      label: Host
+      description: OS, compiler or CDT version, and the commit you built.
+      placeholder: Ubuntu 22.04, CDT 4.1.1, abc1234
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps
+      description: Commands, from a clean build directory when it matters.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      render: text

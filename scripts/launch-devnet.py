@@ -2,7 +2,8 @@
 """Boot a local Humanity single-producer chain with ra.* contracts and RA.
 
 Requires built channeld/chan/keyd and compiled contract wasm (cmake
--DBUILD_CONTRACTS=ON, or artifacts from the Compile contracts Action).
+-DBUILD_CONTRACTS=ON, or scripts/compile-contracts.sh, which writes
+build-contracts/).
 
   python3 scripts/launch-devnet.py --reset
 """
@@ -332,7 +333,7 @@ def main() -> None:
     args.genesis = args.genesis.expanduser().resolve()
     args.data_dir = args.data_dir.expanduser().resolve()
     if args.contracts_dir is None:
-        for candidate in (args.build_dir / "contracts", REPO_ROOT / "build" / "contracts", REPO_ROOT / "build-arm64" / "contracts"):
+        for candidate in (args.build_dir / "contracts", REPO_ROOT / "build" / "contracts", REPO_ROOT / "build-arm64" / "contracts", REPO_ROOT / "build-contracts"):
             if (candidate / "ra.token" / "ra.token.wasm").is_file() or (candidate / "ra.boot" / "ra.boot.wasm").is_file():
                 args.contracts_dir = candidate
                 break

@@ -1,0 +1,56 @@
+name: Contribution request
+description: Ask for a change and write the steps someone else can follow.
+title: "[request] "
+labels:
+  - contribution-request
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A request is a piece of work a second person can pick up. Name the place in the tree and the steps. A request without steps goes back for those steps.
+
+        Read [how to implement](https://github.com/dougbutner/Humanity/blob/main/docs/contributing/how-to-implement.md) and the open list in [requests](https://github.com/dougbutner/Humanity/blob/main/docs/contributing/requests.md).
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - node
+        - contracts
+        - docs
+        - ci
+        - pages
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why
+      description: What stays closed, wrong, or unreviewable if this waits.
+    validations:
+      required: true
+  - type: textarea
+    id: where
+    attributes:
+      label: Where
+      description: Paths. Contracts, plugins, docs, workflows.
+    validations:
+      required: true
+  - type: textarea
+    id: how
+    attributes:
+      label: How to implement
+      description: Ordered steps. Include the command a reviewer runs.
+      placeholder: |
+        1. Branch from main.
+        2. Change …
+        3. Run …
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: Done when
+      description: The check that closes this. A green command, a file that exists, a sentence that is true.
+    validations:
+      required: true

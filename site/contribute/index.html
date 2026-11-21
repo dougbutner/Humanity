@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contribute · Humanity</title>
+  <meta name="description" content="Contribution requests for Humanity, and how to implement each kind.">
+  <meta name="theme-color" content="#050705">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../brand/tokens.css">
+  <link rel="stylesheet" href="../brand/chrome.css">
+  <link rel="stylesheet" href="../brand/buttons.css">
+  <link rel="stylesheet" href="../site.css">
+</head>
+<body data-root="../">
+  <a class="skip" href="#content">Skip to content</a>
+  <main id="content" class="tetra-main">
+    <div class="wrap">
+      <p class="kicker">Humanity</p>
+      <h1>Contribute</h1>
+      <p class="lede">A request names an area, a why, a where, the steps, and the check that closes it. Pick one below, or file a new one with those five parts.</p>
+      <div class="actions">
+        <a class="tetra-btn tetra-btn--primary" href="https://github.com/dougbutner/Humanity/issues/new?template=contribution-request.yml">File a request</a>
+        <a class="tetra-btn" href="https://github.com/dougbutner/Humanity/issues/new?template=bug.yml">Report a bug</a>
+      </div>
+
+      <h2>The map</h2>
+      <table>
+        <thead>
+          <tr><th>You are changing</th><th>Start here</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>The node</td><td><code>libraries/</code>, <code>plugins/</code>, <code>programs/</code></td></tr>
+          <tr><td>A core contract</td><td><code>contracts/</code> and its <code>CMakeLists.txt</code></td></tr>
+          <tr><td>Board helpers we compile</td><td><code>contracts/fractal.perm</code></td></tr>
+          <tr><td>Election vendor</td><td>Read <code>external/Eden/README.md</code> first</td></tr>
+          <tr><td>Local boot</td><td><code>scripts/launch-devnet.py</code></td></tr>
+          <tr><td>Contract CI</td><td><code>scripts/compile-contracts.sh</code></td></tr>
+          <tr><td>Operator manual</td><td><code>docs/</code></td></tr>
+          <tr><td>This plan or these pages</td><td><code>PLAN.md</code> and <code>site/</code> together</td></tr>
+        </tbody>
+      </table>
+      <p>The release host is Ubuntu 22.04. macOS is best-effort. Say which one you used.</p>
+
+      <h2>Before you branch</h2>
+      <ol>
+        <li>Search the open requests. If none covers the work, file one. Fill in how to implement. Then build that.</li>
+        <li>Fork the repository. Clone with <code>--recursive</code> when you will build the node. A docs-only or contract-only clone can skip submodules.</li>
+        <li>Branch from <code>main</code>: <code>feature/…</code>, <code>fix/…</code>, <code>docs/…</code>, <code>chore/…</code>.</li>
+      </ol>
+      <pre>git clone --recursive https://github.com/&lt;you&gt;/Humanity.git
+cd Humanity
+git remote add upstream https://github.com/dougbutner/Humanity.git
+git checkout -b feature/short-description</pre>
+
+      <h2>A docs change</h2>
+      <ol>
+        <li>Edit the page a reader actually opens. Operator facts live in <code>docs/</code>. Process lives in <code>CONTRIBUTING.md</code>, <code>PLAN.md</code>, and <code>docs/contributing/</code>.</li>
+        <li>If the page contains <code>[[info | …]]</code>, replace that callout with a paragraph or a blockquote. Leave the rest of the page's facts alone.</li>
+        <li>If you changed the plan, edit <code>site/plan/index.html</code> in the same commit. If you changed a recipe or a request, edit this page too.</li>
+        <li>When you touched <code>site/</code>, open it locally: <code>python3 -m http.server 8080 --directory site</code>.</li>
+      </ol>
+
+      <h2>A contract change</h2>
+      <p>You need CDT 4.1.x, with <code>cdt-cpp</code> on <code>PATH</code>. The workflow installs <code>cdt_4.1.1-1_amd64.deb</code> from the CDT v4.1.1 release, on Ubuntu 22.04.</p>
+      <ol>
+        <li>Match the nearest contract. <code>clang-format</code> the C++ you touch, with the repo-root <code>.clang-format</code>.</li>
+        <li>A new <code>.cpp</code> on an existing contract goes on that directory's <code>add_contract(...)</code>. A new contract directory needs <code>add_subdirectory</code> in <code>contracts/CMakeLists.txt</code> and a <code>CMakeLists.txt</code> copied from the closest sibling.</li>
+        <li>A new shipping wasm path goes in the list inside <code>scripts/compile-contracts.sh</code>.</li>
+        <li>Compile. Wasm lands under <code>build-contracts/</code>, which is gitignored. <code>CHANNEL_BUILD_JOBS=4</code> lowers the fan-out.</li>
+      </ol>
+      <pre>bash scripts/compile-contracts.sh</pre>
+      <p>Boot, when you already have <code>channeld</code>, <code>chan</code>, and <code>keyd</code>:</p>
+      <pre>python3 scripts/launch-devnet.py --reset --contracts-dir build-contracts</pre>
+      <p>A full node build with <code>-DBUILD_CONTRACTS=ON</code> writes wasm under <code>build/contracts/</code>, and the launch script finds that directory on its own. Contract-only pull requests are checked by the Compile contracts workflow.</p>
+
+      <h2>A node change</h2>
+      <p>Build on Ubuntu 22.04. Prerequisites and both build styles are in the README. Some <code>.cpp</code> files need about 4GB of RAM. Lower <code>-j</code> if the compiler is killed.</p>
+      <p>From the build directory:</p>
+      <pre>ctest -j "$(nproc)" -LE _tests</pre>
+      <p>Boost.Test <code>--run_test=</code> takes the suite name from <code>BOOST_AUTO_TEST_SUITE()</code>. There is no node workflow yet. Adding one is CR-1. Until it exists, paste the command and the result in the pull request. Leave submodule pointers alone.</p>
+
+      <h2>Open requests</h2>
+
+      <h3 id="cr-1">CR-1. Ubuntu 22.04 node CI</h3>
+      <p><b>Why.</b> A node pull request currently ends on the author's machine. Reviewers cannot see a <code>ctest</code> result unless the author pastes one.</p>
+      <p><b>Where.</b> A new <code>.github/workflows/node.yml</code>. The unpinned build is already in the README.</p>
+      <p><b>How.</b></p>
+      <ol>
+        <li>One job, <code>ubuntu-22.04</code>. Checkout with submodules.</li>
+        <li>Install the README's unpinned packages: <code>build-essential</code>, <code>cmake</code>, <code>git</code>, <code>libcurl4-openssl-dev</code>, <code>libgmp-dev</code>, <code>llvm-11-dev</code>, <code>python3-numpy</code>, <code>file</code>, <code>zlib1g-dev</code>.</li>
+        <li>Configure and build the way the README does. Start <code>CHANNEL_BUILD_JOBS</code> at 2. These units can use about 4GB each.</li>
+        <li>From the build directory run <code>ctest -j 2 -LE _tests</code>.</li>
+        <li>Leave serial tests, wasm spec tests, and long-running tests out until this job is green twice.</li>
+      </ol>
+      <p><b>Done when</b> a pull request that touches <code>libraries/</code>, <code>plugins/</code>, or <code>programs/</code> shows this job, and a run on <code>main</code> is green.</p>
+
+      <h3 id="cr-2">CR-2. First tagged Ubuntu package</h3>
+      <p><b>Why.</b> The README tells a person to install <code>humanity*.deb</code> from Releases. There is no tag yet, so that path has nowhere to land.</p>
+      <p><b>Where.</b> GitHub Releases, and the version string <code>channeld --full-version</code> already prints. Packaging is <code>tools/reproducible.Dockerfile</code>, or <code>make package</code> from the README.</p>
+      <p><b>How.</b></p>
+      <ol>
+        <li>Pick a version. <code>v0.1.0</code> is enough while <code>main</code> is the development line. Tags are <code>vMAJOR.MINOR.PATCH</code>.</li>
+        <li>Produce an Ubuntu 22.04 <code>.deb</code> from that commit.</li>
+        <li>Publish it on the Release. Keep a <code>humanity*.deb</code> name so the README command still matches.</li>
+        <li>Install it in a clean Ubuntu 22.04 container and run <code>channeld --full-version</code>. The line starts with the tag.</li>
+      </ol>
+      <p><b>Done when</b> the Releases page has that asset, and the version check is in the release notes.</p>
+
+      <h3 id="cr-3">CR-3. Keep the wasm list honest</h3>
+      <p>Good first issue. The failure is loud.</p>
+      <p><b>Why.</b> Compile contracts only proves the wasm paths named in <code>scripts/compile-contracts.sh</code>. A new contract that builds and is forgotten still looks green.</p>
+      <p><b>How.</b> When you add or rename a contract target, add <code>directory/name.wasm</code> to the array. <code>flex.token</code> lives at <code>ra.pure/flex.token.wasm</code>. Run the script, or wait for the workflow.</p>
+      <p><b>Done when</b> that list and <code>contracts/CMakeLists.txt</code> name the same shipping contracts. Test-only contracts under <code>contracts/test_contracts</code> stay off the list.</p>
+
+      <h3 id="cr-4">CR-4. One callout at a time</h3>
+      <p>Good first issue.</p>
+      <p><b>Why.</b> Pages under <code>docs/</code> still contain Spring callouts, written <code>[[info | Note]]</code>. GitHub renders that as raw brackets.</p>
+      <p><b>How.</b> Pick one page you are already reading. Replace each callout on that page with a paragraph or a blockquote that says the same thing. Do not retitle the page or rewrite facts you did not come to check.</p>
+      <p><b>Done when</b> that page has zero <code>[[info</code> markers, and the meaning of each former callout is still on the page.</p>
+
+      <h2>The pull request</h2>
+      <p>Use the template. Link the issue. Say the command you ran. One maintainer approval is the usual bar. Consensus, crypto, serialization, and resource limits get a slower read. The contract workflow is the check that applies today.</p>
+
+      <p class="source">Edit docs/contributing and this page together</p>
+    </div>
+  </main>
+  <script type="module" src="../site.js"></script>
+</body>
+</html>

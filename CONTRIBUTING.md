@@ -24,9 +24,11 @@ Build, install, and test commands live in [README.md](./README.md). Do not dupli
 
 ## Code of conduct
 
-Be respectful, patient, and constructive. Consensus-critical code is reviewed for correctness first, not speed of landing. Report abuse to the maintainers via a private GitHub contact or security advisory (see [Security](#security)).
+Be respectful, patient, and constructive. The full note is [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md). Consensus-critical code is reviewed for correctness first. Report abuse to the maintainers via a private GitHub contact or security advisory (see [Security](#security)).
 
 ## Getting started
+
+Read [PLAN.md](./PLAN.md) and [how to implement](./docs/contributing/how-to-implement.md). Open work with steps is in [contribution requests](./docs/contributing/requests.md).
 
 1. Fork [dougbutner/Humanity](https://github.com/dougbutner/Humanity).
 2. Clone with submodules:
@@ -47,7 +49,7 @@ Supported host for node builds: **Ubuntu 22.04**. macOS is best-effort and is no
 
 Prerequisites, pinned Docker build, unpinned `cmake` / `make`, and `ctest` labels are in the README ([Build and Install from Source](./README.md#build-and-install-from-source)).
 
-Contracts additionally need [Antelope CDT](https://github.com/AntelopeIO/cdt) 3.x/4.x and `-DBUILD_CONTRACTS=ON`. Without local CDT, use the **Compile contracts** GitHub Action (Ubuntu 22.04, CDT 4.1.1).
+Contracts additionally need [Antelope CDT](https://github.com/AntelopeIO/cdt) 3.x/4.x. With `cdt-cpp` on `PATH`, run `bash scripts/compile-contracts.sh`. The same script is the **Compile contracts** workflow (`.github/workflows/compile-contracts.yml`, Ubuntu 22.04, CDT 4.1.1). A full node configure can still pass `-DBUILD_CONTRACTS=ON`.
 
 Some `.cpp` files need ~4GB RAM; reduce `-j` if the compiler is killed.
 
@@ -62,9 +64,11 @@ Do not commit CDT-generated `.actions.cpp`, `.dispatch.cpp`, or `.desc` files.
 
 ## Issues
 
-Search existing issues and PRs first. Include OS, compiler/CDT versions, commands, and logs. For protocol work, say whether the change is node (`libraries/`, `plugins/`, `programs/`), contracts (`contracts/`), or both.
+Search existing issues, pull requests, and [contribution requests](./docs/contributing/requests.md) first.
 
-Pre-mainnet protocol work is tracked in [TO-DO-B4-MAINNET.md](./TO-DO-B4-MAINNET.md).
+- A change someone else should be able to pick up uses the [contribution request](https://github.com/dougbutner/Humanity/issues/new?template=contribution-request.yml) form: area, why, where, how to implement, done when.
+- A run that disagreed with the code or the docs uses the [bug](https://github.com/dougbutner/Humanity/issues/new?template=bug.yml) form. Include OS, compiler or CDT version, commands, and logs.
+- Work that blocks a public chain also gets a row in [TO-DO-B4-MAINNET.md](./TO-DO-B4-MAINNET.md) and the label `mainnet-todo`.
 
 ## Pull requests
 
@@ -88,6 +92,8 @@ Suggested checklist:
 - [ ] Format applied to touched C++
 - [ ] Docs updated if user-visible
 - [ ] New `.cpp` listed in the matching `add_contract` / `add_subdirectory`
+- [ ] New shipping wasm listed in `scripts/compile-contracts.sh`
+- [ ] Plan pages updated together when the plan, a recipe, or a request changed (`PLAN.md` / `site/plan/`, `docs/contributing/` / `site/contribute/`)
 
 ## Review and merging
 
@@ -111,7 +117,12 @@ Boost.Test `--run_test=` is the **suite name** from `BOOST_AUTO_TEST_SUITE()`, n
 
 WASM runtime flags: `-- --eos-vm` (and jit/oc if that runtime was built).
 
-GitHub Actions in this repo include **Compile contracts** (path-filtered on `contracts/**`). Other workflows may be Spring leftovers or self-hosted and may not run on this org. Do not assume a green node matrix unless you see it on the PR.
+GitHub Actions in this repo:
+
+- **Compile contracts** (`.github/workflows/compile-contracts.yml`) on `contracts/**`, `scripts/compile-contracts.sh`, and the workflow file.
+- **Pages** (`.github/workflows/pages.yml`) deploys `site/` after an admin sets Pages to GitHub Actions. See [PLAN.md](./PLAN.md#publishing-the-pages).
+
+There is no node test workflow yet. That job is [CR-1](./docs/contributing/requests.md#cr-1-ubuntu-2204-node-ci). Do not treat a contract-only green check as a node build.
 
 Keep tests deterministic. Do not regenerate snapshot / deep-mind fixtures unless those tests actually consume the saved files and the deployed WASM in the fixture changed.
 
@@ -130,13 +141,13 @@ Root cmake with `-DBUILD_CONTRACTS=ON` builds `contracts/` via the CDT Wasm tool
 
 - New contract directory: `add_subdirectory` in `contracts/CMakeLists.txt` plus a `CMakeLists.txt` copied from the closest similar contract (`ra.claim`-style `src/*.cpp`, or `ra.pure` if sources sit next to CMakeLists).
 - New `.cpp` on an existing contract: append it to that directory’s `add_contract(...)`. Headers that are only included do not go on `add_contract`.
-- If **Compile contracts** `test -f`s specific `.wasm` paths, add one line for a **new** wasm target only.
+- If you add a shipping wasm target, add its path to the list in `scripts/compile-contracts.sh`. Test-only contracts under `contracts/test_contracts` stay off that list.
 
 ## Documentation
 
-Keep [README.md](./README.md), [docs/](./docs/), and contract notes accurate. User-visible behavior (CLI, RAM, keys, resources) needs a doc update in the same PR when practical. Prefer small doc PRs over rewrites.
+Keep [README.md](./README.md), [docs/](./docs/), [PLAN.md](./PLAN.md), and the pages under [site/](./site/) saying the same thing. User-visible behavior (CLI, RAM, keys, resources) needs a doc update in the same PR when practical. Prefer small doc PRs over rewrites.
 
-Roundtable meetings (transcripts → Cursor prompts) live in [roundtables/](./roundtables/). Naming and one-folder-only stages: [`.cursor/skills/roundtables/SKILL.md`](./.cursor/skills/roundtables/SKILL.md).
+Roundtable meetings (transcripts → Cursor prompts) live in [roundtables/](./roundtables/). One file, one stage folder. Naming and the three stages: [roundtables/README.md](./roundtables/README.md).
 
 ## Security
 
@@ -155,6 +166,9 @@ Contributions are under the project [LICENSE](./LICENSE) (MIT). Third-party libr
 ## Help
 
 - [GitHub Issues](https://github.com/dougbutner/Humanity/issues)
+- [PLAN.md](./PLAN.md) for what to finish, and in what order
+- [Contribution requests](./docs/contributing/requests.md) and [how to implement](./docs/contributing/how-to-implement.md)
 - [README.md](./README.md) for build and test
 - [docs/](./docs/) for `channeld` / `chan` / `keyd`
 - [WHITEPAPER.md](./WHITEPAPER.md) and [PURE-LIQUID.md](./PURE-LIQUID.md) for protocol intent
+- [tetra.earth](https://tetra.earth) for the grid this chain settles

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Plan · Humanity</title>
+  <meta name="description" content="The plan to finish Humanity as a place other people can build.">
+  <meta name="theme-color" content="#050705">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../brand/tokens.css">
+  <link rel="stylesheet" href="../brand/chrome.css">
+  <link rel="stylesheet" href="../brand/buttons.css">
+  <link rel="stylesheet" href="../site.css">
+</head>
+<body data-root="../">
+  <a class="skip" href="#content">Skip to content</a>
+  <main id="content" class="tetra-main">
+    <div class="wrap">
+      <p class="kicker">Humanity</p>
+      <h1>Plan</h1>
+      <p class="lede">The repository can boot. A second person still has to guess how to begin. This is the work that makes Humanity a place to build together, and the order that work should happen.</p>
+
+      <h2 id="tetra">Tetra</h2>
+      <p><a href="https://tetra.earth">Tetra</a> is the grid this chain settles. Tetra means four. Proof of attention.</p>
+      <p>An offer is a record: what it takes, how you know it was done, and a cost or a payment. The payment can be RA, USDC, or any token the offer names. You become a node by offering and by completing offers. The same relation holds at every scale we use: one person, a group of four to six, a region, the planet.</p>
+      <ul>
+        <li><b>Passport.</b> Who you are, where you are from, what you offer.</li>
+        <li><b>Discovery.</b> Daily charts. A region, then a nation, then the world.</li>
+        <li><b>Recurve.</b> Fractal governance. Small groups, representatives, chiefs.</li>
+        <li><b>Localize.</b> House rules, the procedure for a place, a region you turn on.</li>
+      </ul>
+      <p>RA is the daily attention currency. Level changes how much arrives. Humanity is the ledger under that grid: accounts you can say out loud, permissions that nest, storage at a fixed price, elections whose signer weights fade when the term ends. The app lives at tetra.earth. This repository is the chain. The knowbase is <a href="https://know.tetra.earth">know.tetra.earth</a>.</p>
+
+      <h2>Where the repository stands</h2>
+      <p>Already in the tree: a Spring 2.0 node (<code>channeld</code>, <code>chan</code>, <code>keyd</code>) with Savanna, EM and ED keys, the XPR-style RAM market, fractal elections, and permission epochs. Core contracts in the <code>ra.*</code> namespace, plus <code>flex.token</code> and <code>fractal.perm</code>. A local boot, <code>python3 scripts/launch-devnet.py --reset</code>. The whitepaper, Pure Liquid, the operator manual, and roundtables.</p>
+      <p>Still thin: the contract workflow is in the tree and counts when a run on <code>main</code> is green. There is no release tag and no shipped <code>.deb</code> yet. The operator manual still contains Spring callouts (<code>[[info | Note]]</code>) that GitHub shows as raw text. Node tests do not run in Actions yet.</p>
+
+      <h2>What finishing means</h2>
+      <p><b>Collaborative finish.</b> Someone who has never been in a roundtable can find a request, follow the steps, open a pull request, and see a contract build run. That finish comes first.</p>
+      <p><b>Mainnet finish.</b> An Ubuntu 22.04 binary from a tag, a green node test on that host, and a boot whose trust assumptions are written down. Those rows live in <code>TO-DO-B4-MAINNET.md</code>.</p>
+      <p>Passport, Discovery, and Localize stay on tetra.earth. Recurve's on-chain board is the election code here. The app is a different repository.</p>
+
+      <h2>Order of work</h2>
+      <h3>1. A door</h3>
+      <p>The plan, the how-to, the request list, issue forms, a pull-request template, a code of conduct, a security policy, the Tetra section in the README, and these pages. A request has five parts: area, why, where, how to implement, done when. A request without steps goes back.</p>
+      <h3>2. A green contract build</h3>
+      <p>Ubuntu 22.04, CDT 4.1.1, <code>scripts/compile-contracts.sh</code>. The script uses the same toolchain arguments as the root CMake external project and checks each shipping wasm. Done when a run on <code>main</code> is green.</p>
+      <h3>3. A green node build</h3>
+      <p><a href="../contribute/#cr-1">CR-1</a>. Ubuntu 22.04, the README build, then <code>ctest -j "$(nproc)" -LE _tests</code> from the build directory. Parallelizable tests first.</p>
+      <h3>4. A release you can install</h3>
+      <p><a href="../contribute/#cr-2">CR-2</a>. Tag <code>vMAJOR.MINOR.PATCH</code>. Publish an Ubuntu 22.04 <code>.deb</code>. <code>channeld --full-version</code> prints that version. macOS stays best-effort.</p>
+      <h3>5. The queue stays the requests</h3>
+      <p>New protocol work starts as a contribution request. It joins the mainnet table only when a public chain waits on it. Docs and CI stay on the request list.</p>
+      <h3>6. The operator manual, one page at a time</h3>
+      <p><a href="../contribute/#cr-4">CR-4</a>. When you edit a page under <code>docs/</code>, replace a callout you touch with a paragraph or a blockquote. Leave the rest of that page's facts alone.</p>
+
+      <h2>How to implement</h2>
+      <ol>
+        <li>Read the request. If the steps are thin, improve the request before you write code.</li>
+        <li>Branch from <code>main</code>: <code>feature/…</code>, <code>fix/…</code>, <code>docs/…</code>.</li>
+        <li>Change the smallest surface that makes the request true.</li>
+        <li>Build the piece you changed. Contracts: <code>bash scripts/compile-contracts.sh</code>. Node: the README build, then the parallelizable <code>ctest</code>.</li>
+        <li>Open a pull request with the template. Link the request.</li>
+      </ol>
+      <p>The full recipes are on <a href="../contribute/">Contribute</a>. Consensus, crypto, serialization, and resource limits need a slow read. Say that in the request.</p>
+
+      <h2>Boundaries</h2>
+      <ul>
+        <li>Edit this repository. Leave submodule commits where they are.</li>
+        <li><code>external/Eden</code> is a trimmed vendor. Board helpers we compile are <code>contracts/fractal.perm</code>.</li>
+        <li>Deposit credit is a trusted relayer. The steps are in <code>contracts/ra.claim/FUTURE.md</code>. A proving design is a new request with a written trust model, filed before any table change.</li>
+        <li>Social recovery is in the whitepaper. A request names the account graph and the limit check before any table is added.</li>
+        <li>Code permission on this chain is <code>ra.code</code>.</li>
+        <li><code>RAM_RESTRICTIONS</code> is what makes <code>payer=get_self()</code> safe. Leave <code>FORWARD_SETCODE</code> off when <code>ra</code> must keep intercepting <code>setcode</code>. <code>--no-forward-setcode</code> also skips Savanna, because Savanna depends on that feature.</li>
+        <li>The release host is Ubuntu 22.04. State your OS in every bug report.</li>
+      </ul>
+
+      <h2 id="publishing">Publishing the pages</h2>
+      <p>This directory is the site. <code>site/brand/</code> is the Tetra chrome, copied as a set. Do not restyle it here. The workflow <code>.github/workflows/pages.yml</code> deploys <code>site/</code> with GitHub Actions.</p>
+      <p>One setting lives in GitHub, outside git. A maintainer opens <b>Settings → Pages → Build and deployment → Source: GitHub Actions</b>. The next push to <code>main</code> that touches <code>site/</code> publishes <a href="https://dougbutner.github.io/Humanity/">dougbutner.github.io/Humanity</a>.</p>
+      <pre>python3 -m http.server 8080 --directory site</pre>
+      <p>Then open <code>http://127.0.0.1:8080/</code>.</p>
+
+      <p class="source">Edit PLAN.md and this page together</p>
+    </div>
+  </main>
+  <script type="module" src="../site.js"></script>
+</body>
+</html>

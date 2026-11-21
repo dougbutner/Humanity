@@ -9,14 +9,14 @@ Implementation notes from Humanity roundtables. Each meeting is **one markdown f
 3. Work from [`being-implemented/`](being-implemented/). Open **one prompt at a time**, in the order listed in that file. Paste the fenced prompt into a new Cursor chat (or `@` the file and say “do prompt N”).
 4. When that meeting’s work is done, **move** the same file to [`completed/`](completed/). Do not copy. Do not leave duplicates.
 
-Load these when coding from a prompt:
+When you are in Cursor with the local skills loaded, use these. The steps in the repository are [CONTRIBUTING.md](../CONTRIBUTING.md) and [how to implement](../docs/contributing/how-to-implement.md).
 
 - `@antelope-dev-style` — `ra.*` contract C++
 - `@antelope-core-dev` — `channeld` / runtime / feature flags
 - `@cmake-contract-builds` — new contract source files
 - `@never-push` — do not push commits
 
-Details and naming: [`.cursor/skills/roundtables/SKILL.md`](../.cursor/skills/roundtables/SKILL.md).
+The stage rules are the table below. One file, one folder. Filename: `YYYY-MM-DD-short-kebab-topic.md`.
 
 ## Stages
 

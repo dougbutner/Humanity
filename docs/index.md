@@ -2,7 +2,9 @@
 content_title: Humanity Overview
 ---
 
-Humanity is the human-first blockchain platform for creating and deploying smart contracts and distributed applications, built by Tetra Grids on the Spring 2.0 (Antelope) core. Humanity comes with a number of programs. The primary ones included in Humanity are the following:
+Humanity is the human-first blockchain platform for creating and deploying smart contracts and distributed applications, built by Tetra Grids on the Spring 2.0 (Antelope) core. [Tetra](https://tetra.earth) is the grid of offers this chain settles. The plan for working on the repository together is [PLAN.md](../PLAN.md). How to implement a change is [how to implement](contributing/how-to-implement.md).
+
+Humanity comes with a number of programs. The primary ones included in Humanity are the following:
 
 * [Channeld](01_channeld/index.md) - Core service daemon that runs a node for block production, API endpoints, or local development.
 * [Chan](02_chan/index.md) - Command line interface to interact with the blockchain (via `channeld`) and manage wallets (via `keyd`).

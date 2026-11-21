@@ -1,0 +1,42 @@
+name: Compile contracts
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "contracts/**"
+      - "scripts/compile-contracts.sh"
+      - ".github/workflows/compile-contracts.yml"
+  pull_request:
+    paths:
+      - "contracts/**"
+      - "scripts/compile-contracts.sh"
+      - ".github/workflows/compile-contracts.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  wasm:
+    name: CDT 4.1.1
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install CDT 4.1.1
+        run: |
+          sudo apt-get update
+          curl -fsSL -o /tmp/cdt.deb -L "https://github.com/AntelopeIO/cdt/releases/download/v4.1.1/cdt_4.1.1-1_amd64.deb"
+          sudo apt-get install -y /tmp/cdt.deb
+
+      - name: Compile
+        run: bash scripts/compile-contracts.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: contracts-wasm
+          if-no-files-found: error
+          path: |
+            build-contracts/**/*.wasm
+            build-contracts/**/*.abi

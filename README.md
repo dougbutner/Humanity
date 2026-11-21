@@ -12,6 +12,18 @@ Humanity is everything Spring 2.0 was meant to be, plus:
 - **Fractal elections and permission epochs** — small-group elections rotate a board onto named permissions; native epoch decay then fades signer weights until the old board cannot act. See [Elections and permission epochs](#elections-and-permission-epochs).
 - **Dangling Spring features** — this Spring 2.0 base already includes strong-QC mid-production apply (#1887), paginated `get_accounts_by_authorizers` (#1894), the chaindb slab allocator (#1070 / CHAINB02), and the `fc::xxh3` wrapper (#1868).
 
+## Tetra
+
+[Tetra](https://tetra.earth) is the grid this chain settles. Tetra means four. Proof of attention.
+
+An offer is a record: what it takes, how you know it was done, and a cost or a payment. The payment can be RA, USDC, or any token the offer names. You become a node by offering and by completing offers. The same relation holds at every scale we use: one person, a group of four to six, a region, the planet.
+
+Four faces. **Passport** is who you are, where you are from, and what you offer. **Discovery** is the daily chart, regional then national then global. **Recurve** is governance in those small groups. **Localize** is the house rules of a place you turn on.
+
+RA is the daily attention currency. Level changes how much arrives. Humanity is the ledger under that grid: accounts you can say out loud, permissions that nest, storage at a fixed price, elections whose signer weights fade when the term ends. The app lives at tetra.earth. This repository is the chain. The knowbase is [know.tetra.earth](https://know.tetra.earth).
+
+The work to make this a place a second person can build is [PLAN.md](./PLAN.md). The same pages publish from [`site/`](./site/).
+
 1. [Branches](#branches)
 2. [System Token](#system-token)
 3. [Core Contracts](#core-contracts)
@@ -22,6 +34,8 @@ Humanity is everything Spring 2.0 was meant to be, plus:
 8. [Bash Autocomplete](#bash-autocomplete)
 9. [Roundtables](#roundtables)
 10. [Contributing](./CONTRIBUTING.md)
+11. [Tetra](#tetra)
+12. [Plan](./PLAN.md)
 
 ## Branches
 The `main` branch is the development branch; do not use it for production. Refer to the [release page](https://github.com/dougbutner/Humanity/releases) for current information on releases, pre-releases, and obsolete releases, as well as the corresponding tags for those releases.
@@ -106,7 +120,7 @@ Boot a single-producer chain with `ra.*` and **RA** (Spring 2.0 feature digests,
 python3 scripts/launch-devnet.py --reset
 ```
 
-Needs `channeld` / `chan` / `keyd` (PATH or `build/programs/...`) and contract wasm from `-DBUILD_CONTRACTS=ON` or the **Compile contracts** Action (`--contracts-dir`). HTTP is `127.0.0.1:8888`. `--no-forward-setcode` skips `FORWARD_SETCODE` and `SAVANNA`. Ctrl-C stops the node.
+Needs `channeld` / `chan` / `keyd` (PATH or `build/programs/...`) and contract wasm from `-DBUILD_CONTRACTS=ON` or [`scripts/compile-contracts.sh`](./scripts/compile-contracts.sh) (`--contracts-dir build-contracts`). The same script is the **Compile contracts** workflow (Ubuntu 22.04, CDT 4.1.1). HTTP is `127.0.0.1:8888`. `--no-forward-setcode` skips `FORWARD_SETCODE` and `SAVANNA`. Ctrl-C stops the node.
 
 ## Supported Operating Systems
 We currently support the following operating systems.
@@ -157,7 +171,7 @@ Requirements to build:
 - python3-numpy
 - zlib
 
-To also build the core contracts under `contracts/`, you will need [CDT](https://github.com/AntelopeIO/cdt) 3.x/4.x and to configure with `-DBUILD_CONTRACTS=ON`. On macOS you can skip a local CDT install: the **Compile contracts** GitHub Action (`ubuntu-22.04`, CDT 4.1.1) builds `contracts/` and uploads `.wasm` / `.abi` artifacts. Run it from the Actions tab or push to `main`.
+To also build the core contracts under `contracts/`, you will need [CDT](https://github.com/AntelopeIO/cdt) 3.x/4.x. Either configure the node with `-DBUILD_CONTRACTS=ON`, or, with `cdt-cpp` on `PATH`, run [`scripts/compile-contracts.sh`](./scripts/compile-contracts.sh) (wasm under `build-contracts/`). The **Compile contracts** workflow (`.github/workflows/compile-contracts.yml`, Ubuntu 22.04, CDT 4.1.1) runs that script and uploads `.wasm` / `.abi` artifacts. It runs on pull requests that touch `contracts/`, from the Actions tab, or on a push to `main`.
 
 ### Step 1 - Clone
 If you don't have the Humanity repo cloned to your computer yet, open a terminal and navigate to the folder where you want to clone the Humanity repository:
