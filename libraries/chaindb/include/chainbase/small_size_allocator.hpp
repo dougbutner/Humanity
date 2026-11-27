@@ -1,7 +1,6 @@
 #pragma once
 
 #include <array>
-#include <atomic>
 #include <cassert>
 #include <cstdint>
 #include <cstdlib>
@@ -9,7 +8,6 @@
 #include <vector>
 #include <string>
 #include <functional>
-#include <mutex>
 #include <boost/interprocess/offset_ptr.hpp>
 
 namespace bip = boost::interprocess;
@@ -26,7 +24,9 @@ namespace detail {
 // - allocates in batch from `backing_allocator` (see `allocation_batch_size`)
 // - freed buffers are linked into a free list for fast further allocations
 // - allocated buffers are never returned to the `backing_allocator`
-// - thread-safe
+// - Concurrent access is serialized by chainbase's higher-level RW locks. Do not put
+//   std::mutex here: instances live in the mmap'd segment and Apple's os_unfair_lock
+//   returns EINVAL there.
 // ---------------------------------------------------------------------------------------
 template <class backing_allocator>
 class allocator {
@@ -38,7 +38,6 @@ public:
       , _back_alloc(back_alloc) {}
 
    pointer allocate() {
-      std::lock_guard g(_m);
       if (_block_start == _block_end && _freelist == nullptr) {
          get_some();
       }
@@ -56,18 +55,15 @@ public:
    }
 
    void deallocate(const pointer& p) {
-      std::lock_guard g(_m);
       _freelist = new (&*p) list_item{_freelist};
       ++_freelist_size;
    }
 
    size_t freelist_memory_usage() const {
-      std::lock_guard g(_m);
       return _freelist_size * _sz + (_block_end - _block_start);
    }
 
    size_t num_blocks_allocated() const {
-      std::lock_guard g(_m);
       return _num_blocks_allocated;
    }
 
@@ -94,7 +90,6 @@ private:
    size_t                     _allocation_batch_size = 32;
    size_t                     _freelist_size         = 0;
    size_t                     _num_blocks_allocated  = 0; // number of blocks allocated from boost segment allocator
-   mutable std::mutex         _m;
 };
 
 } // namespace detail

@@ -12,6 +12,7 @@
 
 namespace fractal {
 
+using eosio::action;
 using eosio::check;
 using eosio::name;
 using eosio::permission_level;

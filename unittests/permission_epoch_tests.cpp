@@ -56,6 +56,7 @@ BOOST_AUTO_TEST_CASE( integer_math_one_and_half_periods ) {
    BOOST_CHECK_EQUAL( epoch_count( epoch, 1000 + 5400 ), 1u ); // 1.5 periods -> 1 epoch
    BOOST_CHECK_EQUAL( effective_weight( 10, 1, 2 ), 8u );
 
+   // Plan lock-in: weights {3,2,1}, threshold 4, step=1, period=3600.
    authority auth;
    auth.threshold = 4;
    auth.accounts = {
@@ -64,6 +65,8 @@ BOOST_AUTO_TEST_CASE( integer_math_one_and_half_periods ) {
       { {"carol"_n, "active"_n}, 1 },
    };
    auth_epoch e{ .period_sec = 3600, .step = 1, .start_sec = 0 };
+
+   // One epoch (5400s): effective {2,1,0}, sum 3 < 4 — unreachable board, threshold unchanged.
    auto d1 = apply_epoch_decay( auth, e, 5400 );
    BOOST_CHECK_EQUAL( d1.accounts[0].weight, 2 );
    BOOST_CHECK_EQUAL( d1.accounts[1].weight, 1 );
@@ -71,14 +74,24 @@ BOOST_AUTO_TEST_CASE( integer_math_one_and_half_periods ) {
    BOOST_CHECK_EQUAL( d1.threshold, 4 );
    BOOST_CHECK( authority_unreachable( d1 ) );
 
+   // Three epochs: every weight is 0 (zero-weight death).
    auto d3 = apply_epoch_decay( auth, e, 3 * 3600 );
    BOOST_CHECK_EQUAL( d3.accounts[0].weight, 0 );
    BOOST_CHECK_EQUAL( d3.accounts[1].weight, 0 );
    BOOST_CHECK_EQUAL( d3.accounts[2].weight, 0 );
    BOOST_CHECK( authority_unreachable( d3 ) );
+
+   // period_sec == 0 (feature-off / decay cleared): same delay still verifies {3,2,1} vs 4.
+   auth_epoch off{ .period_sec = 0, .step = 1, .start_sec = 0 };
+   auto d0 = apply_epoch_decay( auth, off, 5400 );
+   BOOST_CHECK_EQUAL( d0.accounts[0].weight, 3 );
+   BOOST_CHECK_EQUAL( d0.accounts[1].weight, 2 );
+   BOOST_CHECK_EQUAL( d0.accounts[2].weight, 1 );
+   BOOST_CHECK_EQUAL( d0.threshold, 4 );
+   BOOST_CHECK( !authority_unreachable( d0 ) );
 }
 
-BOOST_AUTO_TEST_CASE_TEMPLATE( epoch_decay_blocks_signers, TESTER, validating_testers ) { try {
+BOOST_AUTO_TEST_CASE_TEMPLATE( epoch_decay_blocks_signers, TESTER, testers ) { try {
    TESTER chain;
    chain.create_accounts( {"alice"_n, "bob"_n, "carol"_n, "dao"_n} );
    chain.produce_block();
@@ -123,10 +136,46 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( epoch_decay_blocks_signers, TESTER, validating_te
 
 } FC_LOG_AND_RETHROW() }
 
-BOOST_AUTO_TEST_CASE_TEMPLATE( feature_off_ignores_epoch, TESTER, validating_testers ) { try {
-   // Activate everything except permission_epoch_decay by using preactivate+bios only,
-   // then manually activate a subset... simpler: set epoch fields via DB is hard.
-   // Instead: activate all features, then verify that period_sec==0 means no decay.
+BOOST_AUTO_TEST_CASE_TEMPLATE( feature_off_ignores_epoch, TESTER, testers ) { try {
+   // Activate every builtin except PERMISSION_EPOCH_DECAY. Epoch fields on the
+   // permission must then be ignored by authorization checks.
+   TESTER chain( setup_policy::preactivate_feature_and_new_bios );
+   std::vector<builtin_protocol_feature_t> features;
+   for( const auto& p : builtin_protocol_feature_codenames ) {
+      if( p.first == builtin_protocol_feature_t::permission_epoch_decay )
+         continue;
+      if( p.first == builtin_protocol_feature_t::preactivate_feature )
+         continue;
+      features.push_back( p.first );
+   }
+   chain.activate_builtin_protocol_features( features );
+   chain.produce_block();
+
+   chain.create_accounts( {"alice"_n, "bob"_n, "carol"_n, "dao"_n} );
+   chain.produce_block();
+
+   chain.set_authority( "dao"_n, "board"_n, board_authority(), config::active_name );
+   chain.produce_block();
+
+   const uint32_t start = chain.control->pending_block_time().sec_since_epoch();
+   auto& am = chain.control->get_mutable_authorization_manager();
+   const auto& perm = am.get_permission( {"dao"_n, "board"_n} );
+   am.modify_permission_epoch( perm, auth_epoch{ 3600, 1, start }, false );
+   chain.produce_block( fc::seconds( 5400 ) );
+
+   flat_set<permission_level> provided{
+      {"alice"_n, config::active_name},
+      {"bob"_n, config::active_name},
+      {"carol"_n, config::active_name}
+   };
+   BOOST_REQUIRE_NO_THROW(
+      chain.control->get_authorization_manager().check_authorization(
+         "dao"_n, "board"_n, {}, provided, fc::microseconds(0),
+         authorization_manager::_noop_checktime, true ) );
+
+} FC_LOG_AND_RETHROW() }
+
+BOOST_AUTO_TEST_CASE_TEMPLATE( period_zero_disables_decay, TESTER, testers ) { try {
    TESTER chain;
    chain.create_accounts( {"alice"_n, "bob"_n, "carol"_n, "dao"_n} );
    chain.produce_block();
@@ -134,7 +183,6 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( feature_off_ignores_epoch, TESTER, validating_tes
    chain.set_authority( "dao"_n, "board"_n, board_authority(), config::active_name );
    chain.produce_block();
 
-   // period_sec 0 clears / disables decay
    set_epoch_on( chain, "dao"_n, "board"_n, 0, 0, 0 );
    chain.produce_block( fc::seconds( 5400 ) );
 
@@ -149,7 +197,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE( feature_off_ignores_epoch, TESTER, validating_tes
 
 } FC_LOG_AND_RETHROW() }
 
-BOOST_AUTO_TEST_CASE_TEMPLATE( sweep_removes_unreachable_child, TESTER, validating_testers ) { try {
+BOOST_AUTO_TEST_CASE_TEMPLATE( sweep_removes_unreachable_child, TESTER, testers ) { try {
    TESTER chain;
    chain.create_accounts( {"alice"_n, "bob"_n, "carol"_n, "dao"_n} );
    chain.produce_block();
